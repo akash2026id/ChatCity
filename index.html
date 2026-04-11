@@ -5,138 +5,50 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ChatCity — Login</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 body { display:flex; align-items:center; justify-content:center; padding:20px; overflow:auto; }
-.auth-bg {
-  position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
-}
-.auth-bg .blob {
-  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.35;
-}
+.auth-bg { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+.blob { position:absolute; border-radius:50%; filter:blur(80px); opacity:0.35; }
 .blob1 { width:320px;height:320px;background:var(--accent);top:-100px;left:-80px; }
 .blob2 { width:280px;height:280px;background:var(--accent2);bottom:-80px;right:-60px; }
 .blob3 { width:200px;height:200px;background:var(--green);top:40%;left:60%; }
-
-.auth-wrap {
-  position: relative; z-index: 1;
-  width: 100%; max-width: 400px;
-  display: flex; flex-direction: column; gap: 0;
-}
-.logo-section {
-  text-align: center;
-  padding-bottom: 32px;
-}
-.logo-box {
-  width: 72px; height: 72px;
-  background: linear-gradient(135deg,var(--accent),#b06fff);
-  border-radius: 22px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px;
-  margin: 0 auto 14px;
-  box-shadow: 0 8px 32px var(--glow);
-}
-.logo-name {
-  font-family: var(--font2);
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: -1px;
-}
-.logo-name span { color: var(--accent); }
-.logo-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
-
-.form-card {
-  background: rgba(15,15,26,0.85);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  border-radius: var(--r3);
-  padding: 28px 24px 24px;
-}
-.tabs {
-  display: flex;
-  background: var(--bg3);
-  border-radius: var(--r);
-  padding: 4px;
-  gap: 4px;
-  margin-bottom: 22px;
-}
-.tab {
-  flex: 1; padding: 9px;
-  border: none; border-radius: 10px;
-  background: transparent;
-  color: var(--text2);
-  font-family: var(--font); font-size: 14px; font-weight: 700;
-  cursor: pointer; transition: all .2s;
-}
-.tab.active {
-  background: var(--accent);
-  color: #fff;
-  box-shadow: 0 4px 16px var(--glow);
-}
-.form-group { margin-bottom: 12px; }
-.form-label { font-size: 12px; font-weight: 700; color: var(--text2); margin-bottom: 6px; display: block; }
-.inp-wrap { position: relative; }
-.inp-wrap .inp { padding-right: 44px; }
-.inp-eye {
-  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-  background: none; border: none; color: var(--text3); cursor: pointer; font-size: 18px;
-}
-.divider {
-  display: flex; align-items: center; gap: 12px;
-  margin: 16px 0; color: var(--text3); font-size: 12px;
-}
-.divider::before, .divider::after {
-  content: ''; flex: 1; height: 1px; background: var(--border2);
-}
-.google-btn {
-  width: 100%; padding: 13px;
-  background: var(--bg3);
-  border: 1.5px solid var(--border2);
-  border-radius: var(--r);
-  color: var(--text);
-  font-family: var(--font); font-size: 14px; font-weight: 700;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  transition: all .2s;
-}
-.google-btn:hover { background: var(--bg4); border-color: rgba(255,255,255,0.15); }
-.google-icon { font-size: 20px; }
-.errmsg {
-  color: var(--red); font-size: 12px; font-weight: 600;
-  text-align: center; margin-top: 10px; min-height: 16px;
-}
-.e2e-note {
-  text-align: center; margin-top: 18px;
-  font-size: 12px; color: var(--text3);
-  display: flex; align-items: center; justify-content: center; gap: 5px;
-}
-.passlock-notice {
-  background: rgba(124,110,255,0.1);
-  border: 1px solid rgba(124,110,255,0.2);
-  border-radius: var(--r);
-  padding: 12px 14px;
-  font-size: 12px;
-  color: var(--text2);
-  margin-top: 10px;
-  display: none;
-  line-height: 1.6;
-}
+.auth-wrap { position:relative;z-index:1;width:100%;max-width:400px;display:flex;flex-direction:column; }
+.logo-section { text-align:center;padding-bottom:28px; }
+.logo-box { width:72px;height:72px;background:linear-gradient(135deg,var(--accent),#b06fff);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 14px;box-shadow:0 8px 32px var(--glow); }
+.logo-name { font-family:var(--font2);font-size:32px;font-weight:700;letter-spacing:-1px; }
+.logo-name span { color:var(--accent); }
+.logo-sub { font-size:13px;color:var(--text2);margin-top:4px; }
+.form-card { background:rgba(15,15,26,0.92);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:var(--r3);padding:28px 24px 24px; }
+.tabs { display:flex;background:var(--bg3);border-radius:var(--r);padding:4px;gap:4px;margin-bottom:22px; }
+.tab { flex:1;padding:9px;border:none;border-radius:10px;background:transparent;color:var(--text2);font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s; }
+.tab.active { background:var(--accent);color:#fff;box-shadow:0 4px 16px var(--glow); }
+.form-group { margin-bottom:12px; }
+.form-label { font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;display:block; }
+.inp-wrap { position:relative; }
+.inp-wrap .inp { padding-right:44px; }
+.inp-eye { position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px; }
+.divider { display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--text3);font-size:12px; }
+.divider::before,.divider::after { content:'';flex:1;height:1px;background:var(--border2); }
+.google-btn { width:100%;padding:13px;background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s; }
+.google-btn:hover { background:var(--bg4);border-color:rgba(255,255,255,0.15); }
+.errmsg { color:var(--red);font-size:12px;font-weight:600;text-align:center;margin-top:10px;min-height:16px; }
+.e2e-note { text-align:center;margin-top:18px;font-size:12px;color:var(--text3);display:flex;align-items:center;justify-content:center;gap:5px; }
 </style>
 </head>
 <body>
-
 <div class="auth-bg">
   <div class="blob blob1"></div>
   <div class="blob blob2"></div>
   <div class="blob blob3"></div>
 </div>
-
 <div id="toast"></div>
 
 <div class="auth-wrap">
   <div class="logo-section">
-    <div class="logo-box">💬</div>
+    <div class="logo-box"><i class="fas fa-comment-dots" style="color:#fff;font-size:34px;"></i></div>
     <div class="logo-name">Chat<span>City</span></div>
-    <div class="logo-sub">Real-time · Encrypted · Fast</div>
+    <div class="logo-sub"><i class="fas fa-bolt"></i> Real-time · Encrypted · Fast</div>
   </div>
 
   <div class="form-card">
@@ -145,100 +57,106 @@ body { display:flex; align-items:center; justify-content:center; padding:20px; o
       <button class="tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
     </div>
 
-    <!-- LOGIN FORM -->
+    <!-- LOGIN -->
     <div id="form-login">
       <div class="form-group">
-        <label class="form-label">Email Address</label>
+        <label class="form-label"><i class="fas fa-envelope"></i> Email Address</label>
         <input class="inp" type="email" id="l-email" placeholder="you@example.com" autocomplete="email">
       </div>
       <div class="form-group">
-        <label class="form-label">Password</label>
+        <label class="form-label"><i class="fas fa-lock"></i> Password</label>
         <div class="inp-wrap">
           <input class="inp" type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password">
-          <button class="inp-eye" onclick="togglePw('l-pass',this)">👁</button>
+          <button class="inp-eye" onclick="togglePw('l-pass',this)"><i class="fas fa-eye"></i></button>
         </div>
       </div>
-      <div class="passlock-notice" id="passlock-notice">
-        🔐 This account has a <strong>Passcode Lock</strong>. After login, you'll be asked to enter your passcode.
-      </div>
       <button class="btn btn-primary" style="width:100%;margin-top:14px;" id="login-btn" onclick="doLogin()">
-        Login →
+        <i class="fas fa-sign-in-alt"></i> Login
       </button>
       <div class="divider">or</div>
       <button class="google-btn" onclick="doGoogle()">
-        <span class="google-icon">🌐</span> Continue with Google
+        <i class="fab fa-google"></i> Continue with Google
       </button>
       <div class="errmsg" id="l-err"></div>
     </div>
 
-    <!-- SIGNUP FORM -->
+    <!-- SIGNUP -->
     <div id="form-signup" class="hidden">
       <div class="form-group">
-        <label class="form-label">Full Name</label>
+        <label class="form-label"><i class="fas fa-user"></i> Full Name</label>
         <input class="inp" type="text" id="s-name" placeholder="Your full name" autocomplete="name">
       </div>
       <div class="form-group">
-        <label class="form-label">Email Address</label>
+        <label class="form-label"><i class="fas fa-envelope"></i> Email Address</label>
         <input class="inp" type="email" id="s-email" placeholder="you@example.com" autocomplete="email">
       </div>
       <div class="form-group">
-        <label class="form-label">Password</label>
+        <label class="form-label"><i class="fas fa-lock"></i> Password</label>
         <div class="inp-wrap">
           <input class="inp" type="password" id="s-pass" placeholder="Min 6 characters" autocomplete="new-password">
-          <button class="inp-eye" onclick="togglePw('s-pass',this)">👁</button>
+          <button class="inp-eye" onclick="togglePw('s-pass',this)"><i class="fas fa-eye"></i></button>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Set Passcode (4-digit PIN)</label>
-        <input class="inp" type="number" id="s-pin" placeholder="e.g. 1234" maxlength="4" inputmode="numeric">
-        <div style="font-size:11px;color:var(--text3);margin-top:5px;">📌 Remember this PIN — required to open the app each login</div>
+        <label class="form-label"><i class="fas fa-key"></i> Set Passcode (4-digit PIN)</label>
+        <input class="inp" type="text" id="s-pin" placeholder="e.g. 1234" maxlength="4" pattern="\d{4}" inputmode="numeric">
+        <div style="font-size:11px;color:var(--text3);margin-top:5px;"><i class="fas fa-info-circle"></i> Remember this PIN — required each login</div>
       </div>
       <button class="btn btn-primary" style="width:100%;margin-top:14px;" id="signup-btn" onclick="doSignup()">
-        Create Account →
+        <i class="fas fa-user-plus"></i> Create Account
       </button>
       <div class="divider">or</div>
       <button class="google-btn" onclick="doGoogle()">
-        <span class="google-icon">🌐</span> Continue with Google
+        <i class="fab fa-google"></i> Continue with Google
       </button>
       <div class="errmsg" id="s-err"></div>
     </div>
   </div>
-
-  <div class="e2e-note">🔒 End-to-end encrypted · Your data stays yours</div>
+  <div class="e2e-note"><i class="fas fa-shield-alt" style="color:var(--green);"></i> End-to-end encrypted · Your data stays yours</div>
 </div>
 
-<!-- PASSCODE MODAL -->
+<!-- PASSCODE MODAL — Custom keypad, NO native keyboard -->
 <div class="modal-overlay" id="passcode-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title">🔐 Enter Passcode</div>
+    <div class="modal-title"><i class="fas fa-lock" style="color:var(--accent);"></i> Enter Passcode</div>
     <div style="text-align:center;color:var(--text2);font-size:13px;margin-bottom:20px;">Enter your 4-digit PIN to unlock ChatCity</div>
-    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px;" id="pin-dots">
-      <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;background:var(--border2);border:2px solid var(--border2);transition:all .2s;"></div>
-      <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;background:var(--border2);border:2px solid var(--border2);transition:all .2s;"></div>
-      <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;background:var(--border2);border:2px solid var(--border2);transition:all .2s;"></div>
-      <div class="pin-dot" style="width:14px;height:14px;border-radius:50%;background:var(--border2);border:2px solid var(--border2);transition:all .2s;"></div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:260px;margin:0 auto;">
-      ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>`
-        <button onclick="pinKey('${k}')" style="padding:16px;border:1px solid var(--border2);border-radius:14px;background:var(--bg3);color:var(--text);font-size:20px;font-weight:700;font-family:var(--font2);">${k}</button>
-      `).join('')}
+    <div class="pin-keypad" id="pin-keypad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key empty"></button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key backspace" onclick="pinKey('⌫')"><i class="fas fa-delete-left"></i></button>
     </div>
     <div class="errmsg" id="pin-err" style="margin-top:14px;"></div>
+    <button onclick="doLogout()" style="background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;margin-top:16px;width:100%;text-align:center;font-family:var(--font);">
+      <i class="fas fa-sign-out-alt"></i> Logout and use different account
+    </button>
   </div>
 </div>
 
 <script type="module">
 import {
   auth, db, gProvider,
-  ref, set, get, onValue,
+  ref, set, get,
   signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  updateProfile, onAuthStateChanged,
+  updateProfile, onAuthStateChanged, signOut,
   colorFor, initialsOf,
-  toast, reportError,
-  saveSession, getSession,
-  go,
-  createUserSearchIndex
+  toast, saveSession, getSession, clearSession,
+  go, createUserSearchIndex
 } from './firebase.js';
 
 let pendingUser = null;
@@ -257,42 +175,38 @@ window.togglePw = (id, btn) => {
   const inp = document.getElementById(id);
   const hidden = inp.type === 'password';
   inp.type = hidden ? 'text' : 'password';
-  btn.textContent = hidden ? '🙈' : '👁';
+  btn.innerHTML = hidden ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
 };
 
-// ── After Google / Email auth, check passcode ──
+function updatePinDots(error=false) {
+  const dots = document.querySelectorAll('.pin-dot');
+  dots.forEach((d,i) => {
+    d.classList.toggle('filled', !error && i < pinEntered.length);
+    d.classList.toggle('error', error);
+  });
+}
+
 async function afterAuth(user) {
-  // Fetch user record
   const snap = await get(ref(db, `users/${user.uid}`));
   if(!snap.exists()) {
-    // New Google user — create profile, no passcode (they can set later)
     const name = user.displayName || 'User';
     const userData = {
-      uid:      user.uid,
-      name,
-      email:    user.email,
-      initials: initialsOf(name),
-      color:    colorFor(user.uid),
-      photo:    user.photoURL || '',
-      passcode: '',
-      online:   false,
-      createdAt: Date.now()
+      uid: user.uid, name, email: user.email,
+      initials: initialsOf(name), color: colorFor(user.uid),
+      photo: user.photoURL || '', passcode: '', online: false, createdAt: Date.now()
     };
     await set(ref(db, `users/${user.uid}`), userData);
-    
-    // ✅ CREATE SEARCH INDEX
     await createUserSearchIndex(user.uid, userData);
-    
     saveSession(user.uid, '');
-    go('home.html');
-    return;
+    go('home.html'); return;
   }
   const userData = snap.val();
   const passcode = userData.passcode || '';
-
   if(passcode) {
-    // Show passcode modal
     pendingUser = { user, userData };
+    pinEntered = '';
+    updatePinDots();
+    document.getElementById('pin-err').textContent = '';
     document.getElementById('passcode-modal').classList.add('show');
   } else {
     saveSession(user.uid, '');
@@ -300,68 +214,55 @@ async function afterAuth(user) {
   }
 }
 
-// ── Passcode PIN ──
 window.pinKey = k => {
   if(k === '⌫') {
     pinEntered = pinEntered.slice(0,-1);
   } else if(k !== '' && pinEntered.length < 4) {
     pinEntered += String(k);
   }
-  // Update dots
-  const dots = document.querySelectorAll('.pin-dot');
-  dots.forEach((d,i) => {
-    d.style.background = i < pinEntered.length ? 'var(--accent)' : 'var(--border2)';
-    d.style.borderColor = i < pinEntered.length ? 'var(--accent)' : 'var(--border2)';
-  });
-  // Auto check when 4 digits
-  if(pinEntered.length === 4) {
-    setTimeout(checkPin, 120);
-  }
+  updatePinDots();
+  if(pinEntered.length === 4) setTimeout(checkPin, 120);
 };
+
 function checkPin() {
   if(!pendingUser) return;
-  const correct = pendingUser.userData.passcode;
-  if(pinEntered === String(correct)) {
+  const correct = String(pendingUser.userData.passcode);
+  if(pinEntered === correct) {
     saveSession(pendingUser.user.uid, pinEntered);
     go('home.html');
   } else {
+    updatePinDots(true);
     document.getElementById('pin-err').textContent = '❌ Wrong passcode. Try again.';
     pinEntered = '';
-    document.querySelectorAll('.pin-dot').forEach(d => {
-      d.style.background = 'var(--accent2)';
-      d.style.borderColor = 'var(--accent2)';
-    });
-    setTimeout(()=>{
-      document.querySelectorAll('.pin-dot').forEach(d => {
-        d.style.background = 'var(--border2)';
-        d.style.borderColor = 'var(--border2)';
-      });
-      document.getElementById('pin-err').textContent = '';
-    }, 700);
+    setTimeout(()=>{ updatePinDots(false); document.getElementById('pin-err').textContent=''; }, 900);
   }
 }
 
-// ── Login ──
+window.doLogout = async () => {
+  clearSession();
+  try { await signOut(auth); } catch{}
+  document.getElementById('passcode-modal').classList.remove('show');
+  pendingUser = null; pinEntered = '';
+};
+
 window.doLogin = async () => {
   const email = document.getElementById('l-email').value.trim();
   const pass  = document.getElementById('l-pass').value;
   const errEl = document.getElementById('l-err');
   const btn   = document.getElementById('login-btn');
   if(!email||!pass){ errEl.textContent='Please fill in all fields'; return; }
-  btn.textContent = '⏳ Logging in…'; btn.disabled = true;
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Logging in…'; btn.disabled=true;
   try {
     const cred = await signInWithEmailAndPassword(auth, email, pass);
     await afterAuth(cred.user);
   } catch(e) {
-    errEl.textContent = e.code==='auth/user-not-found'||e.code==='auth/wrong-password'
-      ? 'Wrong email or password'
-      : e.message;
+    errEl.textContent = (e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')
+      ? '❌ Wrong email or password' : e.message;
   } finally {
-    btn.textContent = 'Login →'; btn.disabled = false;
+    btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Login'; btn.disabled=false;
   }
 };
 
-// ── Signup ──
 window.doSignup = async () => {
   const name  = document.getElementById('s-name').value.trim();
   const email = document.getElementById('s-email').value.trim();
@@ -369,45 +270,29 @@ window.doSignup = async () => {
   const pin   = document.getElementById('s-pin').value.trim();
   const errEl = document.getElementById('s-err');
   const btn   = document.getElementById('signup-btn');
-
   if(!name||!email||!pass){ errEl.textContent='Please fill in all fields'; return; }
   if(pass.length < 6){ errEl.textContent='Password must be at least 6 characters'; return; }
   if(pin && (pin.length!==4||!/^\d{4}$/.test(pin))){ errEl.textContent='Passcode must be exactly 4 digits'; return; }
-
-  btn.textContent = '⏳ Creating account…'; btn.disabled = true;
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Creating…'; btn.disabled=true;
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, { displayName: name });
-    
     const userData = {
-      uid:      cred.user.uid,
-      name,
-      email,
-      initials: initialsOf(name),
-      color:    colorFor(cred.user.uid),
-      photo:    '',
-      passcode: pin || '',
-      online:   false,
-      createdAt: Date.now()
+      uid: cred.user.uid, name, email,
+      initials: initialsOf(name), color: colorFor(cred.user.uid),
+      photo: '', passcode: pin||'', online: false, createdAt: Date.now()
     };
-    
     await set(ref(db, `users/${cred.user.uid}`), userData);
-    
-    // ✅ CREATE SEARCH INDEX IMMEDIATELY AFTER SIGNUP
     await createUserSearchIndex(cred.user.uid, userData);
-    
     saveSession(cred.user.uid, pin||'');
     go('home.html');
   } catch(e) {
-    errEl.textContent = e.code==='auth/email-already-in-use'
-      ? 'This email is already registered'
-      : e.message;
+    errEl.textContent = e.code==='auth/email-already-in-use' ? 'This email is already registered' : e.message;
   } finally {
-    btn.textContent = 'Create Account →'; btn.disabled = false;
+    btn.innerHTML='<i class="fas fa-user-plus"></i> Create Account'; btn.disabled=false;
   }
 };
 
-// ── Google ──
 window.doGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, gProvider);
@@ -417,23 +302,20 @@ window.doGoogle = async () => {
   }
 };
 
-// ── If already logged in, check session then redirect ──
 onAuthStateChanged(auth, user => {
   if(user) {
     const sess = getSession();
-    if(sess && sess.uid === user.uid) {
-      go('home.html');
-    }
+    if(sess && sess.uid === user.uid) go('home.html');
   }
 });
 
-// ── Enter key support ──
 document.addEventListener('keydown', e => {
   if(e.key==='Enter') {
-    const tab = document.getElementById('tab-login').classList.contains('active');
-    if(tab) window.doLogin(); else window.doSignup();
+    const isLogin = document.getElementById('tab-login').classList.contains('active');
+    if(isLogin) window.doLogin(); else window.doSignup();
   }
 });
+window.go = go;
 </script>
 </body>
 </html>
