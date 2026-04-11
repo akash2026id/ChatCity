@@ -24,7 +24,7 @@
   font-size:34px;font-weight:800;
   border:3px solid var(--accent);
   box-shadow:0 0 0 4px rgba(124,110,255,0.15);
-  overflow:hidden;
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
 }
 .profile-av img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
 .av-edit {
@@ -35,9 +35,25 @@
   font-size:13px;color:#fff;
 }
 .p-name{font-size:22px;font-weight:800;font-family:var(--font2);margin-bottom:3px;}
-.p-email{font-size:13px;color:var(--text2);margin-bottom:4px;}
-.p-uid{font-size:11px;color:var(--text3);font-family:var(--font2);cursor:pointer;padding:4px 12px;background:var(--bg3);border-radius:20px;border:1px solid var(--border2);}
-.p-uid:hover{border-color:var(--accent);color:var(--accent);}
+.p-email{font-size:13px;color:var(--text2);margin-bottom:8px;}
+
+/* Friend Code Section */
+.code-section {
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:var(--r2);padding:16px;margin:16px;text-align:center;
+}
+.code-label { font-size:12px;color:var(--text2);font-weight:700;margin-bottom:8px;display:block; }
+.code-display {
+  background:linear-gradient(135deg,var(--accent),#9d8fff);
+  color:#fff;border-radius:12px;padding:16px;
+  font-size:24px;font-weight:800;font-family:var(--font2);
+  letter-spacing:4px;margin-bottom:10px;cursor:pointer;
+  user-select:all;
+}
+.code-display:hover { opacity:.9; }
+.code-help { font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5; }
+.copy-btn { background:rgba(124,110,255,0.2);border:1px solid rgba(124,110,255,0.3);color:var(--accent);padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px; }
+.copy-btn:hover { background:var(--accent);color:#fff; }
 
 .section {margin:0 16px 6px;}
 .section-card {
@@ -56,11 +72,9 @@
 .opt-value{font-size:13px;color:var(--text3);max-width:150px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .opt-arrow{color:var(--text3);font-size:18px;margin-left:4px;}
 
-/* Edit modal content */
 .edit-field { margin-bottom:14px; }
 .edit-label { font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;display:block; }
 
-/* PIN input */
 .pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:240px;margin:0 auto;}
 .pin-key{
   padding:14px;border:1px solid var(--border2);border-radius:12px;
@@ -91,7 +105,27 @@
       <input type="file" id="photo-inp" accept="image/*" style="display:none" onchange="uploadPhoto(this)">
       <div class="p-name" id="p-name">Loading…</div>
       <div class="p-email" id="p-email"></div>
-      <div class="p-uid" id="p-uid" onclick="copyId()">Copy Chat ID</div>
+    </div>
+
+    <!-- FRIEND CODE SECTION -->
+    <div class="code-section">
+      <label class="code-label">Your Friend Code</label>
+      <div class="code-display" id="friend-code" onclick="copyCode()">——————</div>
+      <button class="copy-btn" onclick="copyCode()">📋 Copy Code</button>
+      <div class="code-help">
+        Share this code with friends<br>
+        They can add you by entering this code
+      </div>
+    </div>
+
+    <!-- ADD FRIEND BY CODE -->
+    <div class="code-section">
+      <label class="code-label">Add Friend with Code</label>
+      <input type="text" id="friend-code-input" placeholder="Enter friend's code" maxlength="7" style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--font2);text-transform:uppercase;outline:none;margin-bottom:10px;" onkeydown="if(event.key==='Enter')addFriendByCode()">
+      <button class="copy-btn" style="width:100%;margin:0;" onclick="addFriendByCode()">🔗 Add Friend</button>
+      <div class="code-help">
+        Ask your friend to share their 7-character code
+      </div>
     </div>
 
     <!-- ACCOUNT -->
@@ -124,27 +158,6 @@
         <span class="opt-icon">🔒</span>
         <span class="opt-label">End-to-End Encryption</span>
         <span class="opt-value" style="color:var(--green);">Active</span>
-      </div>
-      <div class="option-row" onclick="copyId()">
-        <span class="opt-icon">🆔</span>
-        <span class="opt-label">My Chat ID</span>
-        <span class="opt-value" id="uid-val" style="font-family:var(--font2);font-size:11px;"></span>
-        <span class="opt-arrow">›</span>
-      </div>
-    </div>
-
-    <!-- ABOUT -->
-    <div class="sec-label">ABOUT</div>
-    <div class="section-card">
-      <div class="option-row">
-        <span class="opt-icon">💬</span>
-        <span class="opt-label">ChatCity</span>
-        <span class="opt-value">v2.0</span>
-      </div>
-      <div class="option-row">
-        <span class="opt-icon">💙</span>
-        <span class="opt-label">Developer</span>
-        <span class="opt-value">Abuhurira · 01966061084</span>
       </div>
     </div>
 
@@ -180,12 +193,15 @@ import {
   updateProfile, updatePassword,
   EmailAuthProvider, reauthenticateWithCredential,
   colorFor, initialsOf, toast, reportError,
-  getSession, clearSession, go
+  getSession, clearSession, go,
+  generateUserCode,
+  findUserByCode,
+  addFriendByCode as addFriendByCodeFunc
 } from './firebase.js';
 
-let me=null, userData=null;
+let me=null, userData=null, myCode=null;
 let editMode='';
-let pinBuf='', pinStep=0; // step 0=old, 1=new, 2=confirm
+let pinBuf='', pinStep=0;
 
 window.go=go;
 
@@ -196,6 +212,10 @@ onAuthStateChanged(auth,async user=>{
   me=user;
   const snap=await get(ref(db,`users/${me.uid}`));
   userData=snap.val()||{};
+  
+  // Generate unique code
+  myCode = generateUserCode(me.uid);
+  
   renderProfile();
 });
 
@@ -209,15 +229,41 @@ function renderProfile(){
   }
   document.getElementById('p-name').textContent=userData.name||'User';
   document.getElementById('p-email').textContent=me.email||'';
-  const uid=me.uid; const short=uid.slice(0,8)+'…'+uid.slice(-4);
-  document.getElementById('p-uid').textContent='🆔 '+short+' (tap to copy)';
-  document.getElementById('uid-val').textContent=short;
+  document.getElementById('friend-code').textContent=myCode;
   document.getElementById('opt-name').textContent=userData.name||'';
   document.getElementById('opt-pin').textContent=userData.passcode?'●●●●':'Not set';
 }
 
-window.copyId=()=>{
-  navigator.clipboard.writeText(me.uid).then(()=>toast('Chat ID copied!','ok'));
+window.copyCode=()=>{
+  navigator.clipboard.writeText(myCode).then(()=>toast('Code copied!','ok'));
+};
+
+window.addFriendByCode=async()=>{
+  const code=document.getElementById('friend-code-input').value.trim().toUpperCase();
+  if(!code||code.length!==7){
+    toast('Please enter a valid 7-character code','error');
+    return;
+  }
+  
+  try {
+    const result = await addFriendByCodeFunc(me.uid, code);
+    document.getElementById('friend-code-input').value='';
+    toast(`✓ Added ${result.user.name}!`,'ok');
+    
+    // Navigate to chat
+    setTimeout(()=>{
+      sessionStorage.setItem('cc_chat_target',JSON.stringify({
+        uid:result.user.uid,
+        name:result.user.name,
+        initials:result.user.initials,
+        color:result.user.color,
+        photo:result.user.photo||''
+      }));
+      go('chat.html');
+    },800);
+  } catch(e) {
+    toast(e.message||'Error adding friend','error');
+  }
 };
 
 window.pickPhoto=()=>document.getElementById('photo-inp').click();
@@ -228,7 +274,6 @@ window.uploadPhoto=async el=>{
   const reader=new FileReader();
   reader.onload=async ev=>{
     const base64=ev.target.result;
-    // Store as base64 in DB (no storage needed)
     await set(ref(db,`users/${me.uid}/photo`),base64);
     userData.photo=base64;
     renderProfile();
@@ -237,7 +282,6 @@ window.uploadPhoto=async el=>{
   reader.readAsDataURL(file);
 };
 
-// ── EDIT MODAL ──
 window.openEdit=(mode)=>{
   editMode=mode;
   const modal=document.getElementById('edit-modal');
@@ -283,8 +327,6 @@ window.openEdit=(mode)=>{
 function renderPinStep(){
   const body=document.getElementById('modal-body');
   const steps=userData.passcode?['Old Passcode','New Passcode (4 digits)','Confirm New Passcode']:['New Passcode (4 digits)','Confirm Passcode'];
-  const stepNames=userData.passcode?steps:[...steps];
-  const curStep=userData.passcode?pinStep:pinStep+1;
   const label=userData.passcode?steps[pinStep]:steps[pinStep];
   pinBuf='';
 
@@ -305,7 +347,6 @@ let pin0='',pin1='',pin2='';
 window.pinKey=k=>{
   if(k==='⌫'){ pinBuf=pinBuf.slice(0,-1); }
   else if(k!==''&&pinBuf.length<4){ pinBuf+=String(k); }
-  // Update dots
   for(let i=0;i<4;i++){
     const d=document.getElementById('pd-'+i);
     if(d){ d.style.background=i<pinBuf.length?'var(--accent)':'var(--border2)'; d.style.borderColor=i<pinBuf.length?'var(--accent)':'var(--border2)'; }
@@ -316,7 +357,6 @@ window.pinKey=k=>{
 async function processPin(){
   const errEl=document.getElementById('pin-err');
   if(userData.passcode){
-    // 3-step: old → new → confirm
     if(pinStep===0){
       if(pinBuf!==String(userData.passcode)){ errEl.textContent='Wrong passcode'; shakeDots(); return; }
       pin0=pinBuf; pinStep=1; renderPinStep();
@@ -330,7 +370,6 @@ async function processPin(){
       closeModal(); renderProfile(); toast('Passcode updated!','ok');
     }
   } else {
-    // 2-step: new → confirm
     if(pinStep===0){
       pin1=pinBuf; pinStep=1; renderPinStep();
     } else {
@@ -341,6 +380,7 @@ async function processPin(){
     }
   }
 }
+
 function shakeDots(){
   for(let i=0;i<4;i++){const d=document.getElementById('pd-'+i);if(d)d.style.background='var(--red)';}
   setTimeout(()=>{ pinBuf=''; for(let i=0;i<4;i++){const d=document.getElementById('pd-'+i);if(d){d.style.background='var(--border2)';d.style.borderColor='var(--border2)';}} },600);
@@ -375,7 +415,6 @@ window.savePassword=async()=>{
 };
 
 window.closeModal=()=>{ document.getElementById('edit-modal').classList.remove('show'); pinBuf=''; pinStep=0; };
-// Close on overlay tap
 document.getElementById('edit-modal').addEventListener('click',e=>{ if(e.target===e.currentTarget)window.closeModal(); });
 
 window.doLogout=async()=>{
