@@ -54,21 +54,12 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
 .chat-inp:focus { border-color:var(--accent); }
 .send-btn { width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#9d8fff);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0; }
 
-/* Control buttons */
-.action-btn { padding:6px 12px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:700;transition:all .2s;margin:4px; }
-.warn-btn { background:rgba(255,193,7,0.2);color:var(--yellow);border:1px solid rgba(255,193,7,0.3); }
-.warn-btn:hover { background:rgba(255,193,7,0.3); }
-.ban-btn { background:rgba(255,83,112,0.2);color:var(--red);border:1px solid rgba(255,83,112,0.3); }
-.ban-btn:hover { background:rgba(255,83,112,0.3); }
-.unban-btn { background:rgba(45,212,160,0.2);color:var(--green);border:1px solid rgba(45,212,160,0.3); }
-.unban-btn:hover { background:rgba(45,212,160,0.3); }
-
 .user-list-chat { display:flex;flex-direction:column;gap:8px;padding:8px 0; }
 .user-item-chat { display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg3);border-radius:var(--r);cursor:pointer;transition:all .2s; }
 .user-item-chat:active { background:var(--bg4); }
-.user-item-chat.active { background:var(--accent);color:#fff;border-color:var(--accent); }
-.user-item-chat .user-name { color:inherit; }
-.user-item-chat .user-email { color:inherit;opacity:.8; }
+.user-item-chat.active { background:var(--accent);color:#fff; }
+.user-item-chat.active .user-name { color:#fff; }
+.user-item-chat.active .user-email { color:rgba(255,255,255,0.8); }
 
 .warning-notice { background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.3);border-radius:var(--r);padding:12px 16px;margin:12px 16px;color:var(--yellow);font-size:12px;display:none; }
 .warning-notice.show { display:block; }
@@ -95,7 +86,6 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
     </div>
     <button class="btn btn-primary" style="width:100%;" onclick="adminLogin()">Login to Admin →</button>
     <div id="a-err" style="color:var(--red);font-size:12px;text-align:center;margin-top:10px;min-height:14px;"></div>
-    <div style="text-align:center;margin-top:16px;"><a href="index.html" style="color:var(--text3);font-size:13px;text-decoration:none;">← Back to ChatCity</a></div>
   </div>
 </div>
 
@@ -116,7 +106,7 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
   </div>
 
   <!-- DASHBOARD TAB -->
-  <div id="dashboard-tab" class="tab-content active" style="flex-direction:column;padding-bottom:20px;">
+  <div id="dashboard-tab" class="tab-content active" style="flex-direction:column;overflow-y:auto;">
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-num" id="stat-users">—</div>
@@ -171,7 +161,7 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
 
         <!-- Warning notice -->
         <div class="warning-notice" id="warning-notice">
-          ⚠️ WARNING: This user has received a warning message
+          ⚠️ WARNING: This user has received a warning
         </div>
 
         <!-- Messages -->
@@ -187,13 +177,13 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
   </div>
 
   <!-- USERS TAB -->
-  <div id="users-tab" class="tab-content" style="overflow-y:auto;padding-bottom:20px;">
+  <div id="users-tab" class="tab-content" style="overflow-y:auto;">
     <div class="sec-label" style="padding:16px 16px 8px;">ALL USERS</div>
     <div id="users-list"></div>
   </div>
 
   <!-- SUGGESTIONS TAB -->
-  <div id="suggestions-tab" class="tab-content" style="overflow-y:auto;padding-bottom:20px;">
+  <div id="suggestions-tab" class="tab-content" style="overflow-y:auto;">
     <div class="sec-label" style="padding:16px 16px 8px;">MANAGE SUGGESTIONS</div>
     <div style="padding:16px;color:var(--text2);font-size:12px;background:var(--bg3);margin:16px;border-radius:var(--r);">
       ✅ Enable users to show in suggestions list
@@ -202,7 +192,7 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
   </div>
 
   <!-- ERRORS TAB -->
-  <div id="errors-tab" class="tab-content" style="overflow-y:auto;padding-bottom:20px;">
+  <div id="errors-tab" class="tab-content" style="overflow-y:auto;">
     <div class="sec-label" style="padding:16px 16px 8px;">ERROR LOG</div>
     <div id="error-list">
       <div style="text-align:center;padding:24px;color:var(--text3);font-size:13px;">No errors logged 🎉</div>
@@ -211,20 +201,26 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
 </div>
 
 <script type="module">
-import { db, ref, get, set, push, onValue, remove, colorFor, initialsOf } from './firebase.js';
+import { 
+  db, ref, get, set, push, onValue, remove, 
+  colorFor, initialsOf, ADMIN_UID 
+} from './firebase.js';
 
 const ADMIN_EMAIL  = 'admin@chatcity.com';
 const ADMIN_PASS   = '9999';
 const ADMIN_KEY    = 'cc_admin_sess';
-const ADMIN_UID    = 'admin_system_001';
 
 let allUsers = {};
 let currentChatUser = null;
 let chatMsgsListener = null;
 
 function fmtDate(ts){
-  const d=new Date(ts);
-  return d.toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  try {
+    const d=new Date(ts);
+    return d.toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  } catch {
+    return 'Unknown';
+  }
 }
 
 function fmtTime(ts) {
@@ -233,25 +229,34 @@ function fmtTime(ts) {
 }
 
 window.switchTab = tab => {
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById(tab+'-tab').classList.add('active');
+  try {
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById(tab+'-tab').classList.add('active');
+  } catch(e) {
+    console.error('Tab switch error:', e);
+  }
 };
 
 // ── Login ──
 window.adminLogin=()=>{
-  const email=document.getElementById('a-email').value.trim();
-  const pass=document.getElementById('a-pass').value;
-  const err=document.getElementById('a-err');
-  if(email===ADMIN_EMAIL&&pass===ADMIN_PASS){
-    sessionStorage.setItem(ADMIN_KEY,'1');
-    showDashboard();
-  } else {
-    err.textContent='Wrong email or passkey';
-    setTimeout(()=>err.textContent='',3000);
+  try {
+    const email=document.getElementById('a-email').value.trim();
+    const pass=document.getElementById('a-pass').value;
+    const err=document.getElementById('a-err');
+    if(email===ADMIN_EMAIL&&pass===ADMIN_PASS){
+      sessionStorage.setItem(ADMIN_KEY,'1');
+      showDashboard();
+    } else {
+      err.textContent='Wrong email or passkey';
+      setTimeout(()=>err.textContent='',3000);
+    }
+  } catch(e) {
+    console.error('Login error:', e);
   }
 };
+
 window.adminLogout=()=>{
   sessionStorage.removeItem(ADMIN_KEY);
   document.getElementById('admin-root').style.display='none';
@@ -264,86 +269,98 @@ if(sessionStorage.getItem(ADMIN_KEY)==='1'){
 }
 
 async function showDashboard(){
-  document.getElementById('admin-login').style.display='none';
-  const root=document.getElementById('admin-root');
-  root.style.display='flex';
+  try {
+    document.getElementById('admin-login').style.display='none';
+    const root=document.getElementById('admin-root');
+    root.style.display='flex';
 
-  const usersSnap=await get(ref(db,'users'));
-  const chatsSnap=await get(ref(db,'chats'));
-  const errSnap=await get(ref(db,'admin/errors'));
-  const suggsSnap=await get(ref(db,'suggestions'));
+    const usersSnap=await get(ref(db,'users'));
+    const chatsSnap=await get(ref(db,'chats'));
+    const errSnap=await get(ref(db,'admin/errors'));
+    const suggsSnap=await get(ref(db,'suggestions'));
 
-  allUsers=usersSnap.val()||{};
-  const users=Object.entries(allUsers);
-  const online=users.filter(([,u])=>u.online).length;
-  const chats=Object.keys(chatsSnap.val()||{}).length;
-  const errors=Object.entries(errSnap.val()||{});
-  const suggestions=suggsSnap.val()||{};
-  const suggCount=Object.values(suggestions).filter(v=>v===true).length;
+    allUsers=usersSnap.val()||{};
+    const users=Object.entries(allUsers);
+    const online=users.filter(([,u])=>u.online).length;
+    const chats=Object.keys(chatsSnap.val()||{}).length;
+    const errors=Object.entries(errSnap.val()||{});
+    const suggestions=suggsSnap.val()||{};
+    const suggCount=Object.values(suggestions).filter(v=>v===true).length;
 
-  document.getElementById('stat-users').textContent=users.length;
-  document.getElementById('stat-online').textContent=online;
-  document.getElementById('stat-chats').textContent=chats;
-  document.getElementById('stat-errors').textContent=errors.length;
-  document.getElementById('sugg-count').textContent=suggCount;
+    document.getElementById('stat-users').textContent=users.length;
+    document.getElementById('stat-online').textContent=online;
+    document.getElementById('stat-chats').textContent=chats;
+    document.getElementById('stat-errors').textContent=errors.length;
+    document.getElementById('sugg-count').textContent=suggCount;
 
-  // Chat users list
-  renderChatUsersList(users);
+    // Chat users list
+    renderChatUsersList(users);
 
-  // All users list
-  const ul=document.getElementById('users-list');
-  ul.innerHTML='';
-  users.sort((a,b)=>a[1].name?.localeCompare(b[1].name||'')).forEach(([uid,u])=>{
-    const div=document.createElement('div');
-    div.className='user-item';
-    div.innerHTML=`<div class="${u.online?'online':'offline'}-ind"></div>
-      <div class="av" style="width:36px;height:36px;border-radius:50%;background:${u.color||'#7c6eff'};font-size:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">${u.initials||'?'}</div>
-      <div class="user-info">
-        <div class="user-name">${u.name||'Unknown'}</div>
-        <div class="user-email">${u.email||''}</div>
-      </div>
-      <div style="font-size:11px;color:var(--text3);text-align:right;">${u.online?'<span style="color:var(--green);">● Online</span>':'Offline'}</div>`;
-    ul.appendChild(div);
-  });
-
-  // Suggestions
-  const suggMgmt=document.getElementById('suggestions-mgmt');
-  suggMgmt.innerHTML='';
-  users.sort((a,b)=>a[1].name?.localeCompare(b[1].name||'')).forEach(([uid,u])=>{
-    const isInSugg=suggestions[uid]===true;
-    const item=document.createElement('div');
-    item.className='user-item';
-    item.innerHTML=`<div class="${isInSugg?'online':'offline'}-ind"></div>
-      <div class="av" style="width:36px;height:36px;border-radius:50%;background:${u.color||'#7c6eff'};font-size:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">${u.initials||'?'}</div>
-      <div class="user-info">
-        <div class="user-name">${u.name||'Unknown'}</div>
-        <div class="user-email">${u.email||''}</div>
-      </div>
-      <label class="checkbox-wrapper" style="margin-right:10px;">
-        <input type="checkbox" ${isInSugg?'checked':''} onchange="toggleSuggestion('${uid}',this.checked)">
-        <span style="font-size:12px;color:var(--text2);">${isInSugg?'✓':'Add'}</span>
-      </label>`;
-    suggMgmt.appendChild(item);
-  });
-
-  // Errors
-  const errList=document.getElementById('error-list');
-  if(errors.length){
-    errList.innerHTML='';
-    errors.slice(-20).reverse().forEach(([id,e])=>{
+    // All users list
+    const ul=document.getElementById('users-list');
+    ul.innerHTML='';
+    users.sort((a,b)=>a[1].name?.localeCompare(b[1].name||'')).forEach(([uid,u])=>{
       const div=document.createElement('div');
-      div.className='error-item';
-      div.innerHTML=`<div class="error-msg">⚠ ${e.error||'Unknown error'}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:4px;">${e.ts?fmtDate(e.ts):'Unknown time'}</div>
-        <button onclick="clearErr('${id}')" style="margin-top:8px;background:none;border:1px solid rgba(255,83,112,.3);color:var(--red);border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Clear</button>`;
-      errList.appendChild(div);
+      div.className='user-item';
+      div.innerHTML=`<div class="${u.online?'online':'offline'}-ind"></div>
+        <div class="av" style="width:36px;height:36px;border-radius:50%;background:${u.color||'#7c6eff'};font-size:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">${u.initials||'?'}</div>
+        <div class="user-info">
+          <div class="user-name">${u.name||'Unknown'}</div>
+          <div class="user-email">${u.email||''}</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);text-align:right;">${u.online?'<span style="color:var(--green);">● Online</span>':'Offline'}</div>`;
+      ul.appendChild(div);
     });
-  }
 
-  onValue(ref(db,'users'),snap=>{
-    const all=Object.values(snap.val()||{});
-    document.getElementById('stat-online').textContent=all.filter(u=>u.online).length;
-  });
+    // Suggestions
+    const suggMgmt=document.getElementById('suggestions-mgmt');
+    suggMgmt.innerHTML='';
+    users.sort((a,b)=>a[1].name?.localeCompare(b[1].name||'')).forEach(([uid,u])=>{
+      if(!uid || !u) return;
+      
+      const isInSugg=suggestions[uid]===true;
+      const item=document.createElement('div');
+      item.className='user-item';
+      item.innerHTML=`<div class="${isInSugg?'online':'offline'}-ind"></div>
+        <div class="av" style="width:36px;height:36px;border-radius:50%;background:${u.color||'#7c6eff'};font-size:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">${u.initials||'?'}</div>
+        <div class="user-info">
+          <div class="user-name">${u.name||'Unknown'}</div>
+          <div class="user-email">${u.email||''}</div>
+        </div>
+        <label class="checkbox-wrapper" style="margin-right:10px;">
+          <input type="checkbox" ${isInSugg?'checked':''} onchange="toggleSuggestion('${uid}',this.checked)">
+          <span style="font-size:12px;color:var(--text2);">${isInSugg?'✓':'Add'}</span>
+        </label>`;
+      suggMgmt.appendChild(item);
+    });
+
+    // Errors
+    const errList=document.getElementById('error-list');
+    if(errors.length){
+      errList.innerHTML='';
+      errors.slice(-20).reverse().forEach(([id,e])=>{
+        try {
+          const div=document.createElement('div');
+          div.className='error-item';
+          const errText = typeof e.error === 'string' ? e.error : JSON.stringify(e.error);
+          div.innerHTML=`<div class="error-msg">⚠ ${errText||'Unknown error'}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:4px;">${e.ts?fmtDate(e.ts):'Unknown time'}</div>
+            <button onclick="clearErr('${id}')" style="margin-top:8px;background:none;border:1px solid rgba(255,83,112,.3);color:var(--red);border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Clear</button>`;
+          errList.appendChild(div);
+        } catch(err) {
+          console.error('Error rendering:', err);
+        }
+      });
+    }
+
+    onValue(ref(db,'users'),snap=>{
+      const all=Object.values(snap.val()||{});
+      document.getElementById('stat-online').textContent=all.filter(u=>u.online).length;
+    });
+
+  } catch(e) {
+    console.error('Dashboard error:', e);
+  }
 }
 
 function renderChatUsersList(users) {
@@ -382,31 +399,27 @@ function selectChatUser(uid, user) {
   document.getElementById('chat-av').style.background = user.color||colorFor(uid);
   document.getElementById('chat-name').textContent = user.name||'User';
   
-  // Load ban status
   get(ref(db,`admin/banned/${uid}`)).then(snap=>{
     const isBanned = snap.val()===true;
     document.getElementById('ban-btn').textContent = isBanned ? '✅' : '🔒';
   });
 
-  // Load warning status
   get(ref(db,`admin/warnings/${uid}`)).then(snap=>{
     document.getElementById('warning-notice').classList.toggle('show', snap.val()===true);
   });
 
-  // Listen online status
   onValue(ref(db,`users/${uid}/online`), snap => {
     document.getElementById('chat-status').textContent = snap.val() ? '● Online' : '● Offline';
     document.getElementById('chat-status').style.color = snap.val() ? 'var(--green)' : '';
   });
 
-  // Listen messages
   listenChatMessages(uid);
 }
 
 function listenChatMessages(targetUid) {
   if(chatMsgsListener) chatMsgsListener = null;
-  const chatId = [ADMIN_UID, targetUid].sort().join('__');
-  const msgsRef = ref(db, `chats/${chatId}/messages`);
+  const chatIdVal = [ADMIN_UID, targetUid].sort().join('__');
+  const msgsRef = ref(db, `chats/${chatIdVal}/messages`);
   
   onValue(msgsRef, snap => {
     const msgs = Object.values(snap.val()||{}).sort((a,b)=>a.ts-b.ts);
@@ -443,8 +456,8 @@ window.sendChatMsg = async () => {
   if(!text) return;
   document.getElementById('chat-msg-inp').value = '';
   
-  const chatId = [ADMIN_UID, currentChatUser.uid].sort().join('__');
-  const r = push(ref(db, `chats/${chatId}/messages`));
+  const chatIdVal = [ADMIN_UID, currentChatUser.uid].sort().join('__');
+  const r = push(ref(db, `chats/${chatIdVal}/messages`));
   await set(r, {
     id: r.key,
     senderId: ADMIN_UID,
@@ -461,8 +474,8 @@ window.sendWarning = async () => {
   await set(ref(db, `admin/warnings/${uid}`), true);
   document.getElementById('warning-notice').classList.add('show');
   
-  const chatId = [ADMIN_UID, uid].sort().join('__');
-  const r = push(ref(db, `chats/${chatId}/messages`));
+  const chatIdVal = [ADMIN_UID, uid].sort().join('__');
+  const r = push(ref(db, `chats/${chatIdVal}/messages`));
   await set(r, {
     id: r.key,
     senderId: ADMIN_UID,
@@ -489,17 +502,27 @@ window.toggleBan = async () => {
 };
 
 window.toggleSuggestion=async(uid,isEnabled)=>{
-  if(isEnabled){
-    await set(ref(db,`suggestions/${uid}`),true);
-  } else {
-    await remove(ref(db,`suggestions/${uid}`));
+  try {
+    if(!uid) return;
+    if(isEnabled){
+      await set(ref(db,`suggestions/${uid}`),true);
+    } else {
+      await remove(ref(db,`suggestions/${uid}`));
+    }
+  } catch(e) {
+    console.error('Toggle suggestion error:', e);
   }
 };
 
 window.clearErr=async id=>{
-  await remove(ref(db,`admin/errors/${id}`));
-  location.reload();
+  try {
+    await remove(ref(db,`admin/errors/${id}`));
+    location.reload();
+  } catch(e) {
+    console.error('Clear error:', e);
+  }
 };
+
 </script>
 </body>
 </html>
