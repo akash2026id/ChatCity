@@ -5,524 +5,503 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ChatCity — Admin Panel</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 body { display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto; }
-#admin-root { display:none;flex-direction:column;height:100dvh; }
+#admin-root { display:none;flex-direction:column;height:100dvh;width:100%;max-width:600px; }
+
+/* Login Card */
 .login-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r3);padding:32px 24px;width:100%;max-width:380px; }
-.admin-badge { display:inline-flex;align-items:center;gap:6px;background:rgba(247,201,75,0.15);border:1px solid rgba(247,201,75,0.3);color:var(--yellow);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700; }
-.stat-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 16px 0; }
-.stat-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px 16px;text-align:center; }
-.stat-num { font-size:32px;font-weight:800;font-family:var(--font2);color:var(--accent); }
-.stat-label { font-size:12px;color:var(--text2);margin-top:4px; }
-.error-item { background:var(--bg2);border:1px solid rgba(255,83,112,0.2);border-radius:var(--r);padding:14px 16px;margin:0 16px 10px; }
-.error-msg { font-size:13px;color:var(--red);font-family:var(--font2);margin-bottom:4px;word-break:break-all; }
-.user-item { display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:all .2s; }
-.user-item:active { background:var(--bg3); }
-.online-ind { width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0; }
-.offline-ind { width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0; }
-.user-info { flex:1; }
-.user-name { font-weight:700;font-size:14px; }
-.user-email { font-size:12px;color:var(--text2); }
-.checkbox-wrapper { display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none; }
-.checkbox-wrapper input { width:18px;height:18px;cursor:pointer; }
-.tab-nav { display:flex;gap:8px;margin:16px;background:var(--bg3);border-radius:var(--r);padding:4px;overflow-x:auto; }
-.tab-nav button { flex:1;padding:10px;border:none;background:transparent;color:var(--text2);cursor:pointer;border-radius:10px;font-weight:700;transition:all .2s;font-size:12px;white-space:nowrap;min-width:80px; }
-.tab-nav button.active { background:var(--accent);color:#fff; }
-.tab-content { display:none;flex:1;overflow-y:auto;padding-bottom:20px; }
-.tab-content.active { display:flex;flex-direction:column; }
+.admin-badge { display:inline-flex;align-items:center;gap:6px;background:rgba(247,201,75,0.15);border:1px solid rgba(247,201,75,0.3);color:var(--yellow);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:16px; }
 
-/* Chat styles */
-.chat-header { background:linear-gradient(135deg,var(--accent),#9d8fff);color:#fff;padding:16px;display:flex;align-items:center;gap:12px;flex-shrink:0; }
-.chat-header-av { width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800; }
-.chat-header-info { flex:1;min-width:0; }
-.chat-header-name { font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-.chat-header-status { font-size:12px;opacity:.9; }
-.chat-header-btn { background:rgba(255,255,255,0.2);border:none;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0; }
-.chat-header-btn:hover { background:rgba(255,255,255,0.3); }
+/* Tabs */
+.tab-nav { display:flex;gap:6px;padding:12px 14px;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0; }
+.tab-nav::-webkit-scrollbar { height:0; }
+.tab-btn { flex-shrink:0;padding:8px 14px;border:none;background:var(--bg3);color:var(--text2);cursor:pointer;border-radius:10px;font-weight:700;transition:all .2s;font-size:12px;font-family:var(--font); }
+.tab-btn.active { background:var(--accent);color:#fff;box-shadow:0 4px 12px var(--glow); }
+.tab-pane { display:none;flex:1;overflow-y:auto;padding-bottom:20px; }
+.tab-pane.active { display:flex;flex-direction:column; }
 
-.chat-messages { flex:1;overflow-y:auto;padding:16px 12px;display:flex;flex-direction:column;gap:8px; }
-.msg-row { display:flex;margin-bottom:4px; }
-.msg-row.admin { justify-content:flex-end; }
-.msg-row.user { justify-content:flex-start; }
-.msg-bubble { max-width:70%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.4;word-break:break-word; }
-.msg-bubble.admin { background:linear-gradient(135deg,var(--accent),#9d8fff);color:#fff;border-bottom-right-radius:4px; }
-.msg-bubble.user { background:var(--bg3);color:var(--text);border:1px solid var(--border2);border-bottom-left-radius:4px; }
-.msg-time { font-size:10px;opacity:.6;margin-top:3px; }
+/* Stats */
+.stat-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:14px; }
+.stat-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;text-align:center;position:relative;overflow:hidden; }
+.stat-card::before { content:'';position:absolute;top:-20px;right:-20px;width:70px;height:70px;border-radius:50%;opacity:.1; }
+.stat-num { font-size:30px;font-weight:800;font-family:var(--font2); }
+.stat-label { font-size:11px;color:var(--text2);margin-top:4px;font-weight:700; }
+.stat-icon { font-size:22px;margin-bottom:8px; }
 
-.chat-input-wrap { display:flex;align-items:flex-end;gap:8px;padding:12px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0; }
-.chat-inp { flex:1;background:var(--bg3);border:1.5px solid var(--border2);border-radius:20px;padding:10px 16px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;resize:none;max-height:100px; }
-.chat-inp:focus { border-color:var(--accent); }
-.send-btn { width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#9d8fff);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0; }
+/* User items */
+.user-row { display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);transition:background .15s; }
+.user-row:active { background:var(--bg3); }
+.u-av { width:44px;height:44px;border-radius:50%;font-size:15px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800; }
+.u-av img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+.u-info { flex:1;min-width:0; }
+.u-name { font-weight:700;font-size:14px; }
+.u-sub { font-size:11px;color:var(--text2);margin-top:2px; }
+.u-badge { font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px; }
+.badge-online { background:rgba(45,212,160,0.15);color:var(--green); }
+.badge-offline { background:var(--bg3);color:var(--text3); }
+.badge-banned { background:rgba(255,83,112,0.15);color:var(--red); }
+.badge-warned { background:rgba(247,201,75,0.15);color:var(--yellow); }
+.action-btn { padding:6px 12px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text2);cursor:pointer;font-size:11px;font-weight:700;font-family:var(--font);transition:all .2s;flex-shrink:0; }
+.action-btn:hover { background:var(--bg4); }
+.action-btn.danger { border-color:rgba(255,83,112,0.3);color:var(--red);background:rgba(255,83,112,0.08); }
+.action-btn.warn { border-color:rgba(247,201,75,0.3);color:var(--yellow);background:rgba(247,201,75,0.08); }
+.action-btn.ok { border-color:rgba(45,212,160,0.3);color:var(--green);background:rgba(45,212,160,0.08); }
 
-.user-list-chat { display:flex;flex-direction:column;gap:8px;padding:8px 0; }
-.user-item-chat { display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg3);border-radius:var(--r);cursor:pointer;transition:all .2s; }
-.user-item-chat:active { background:var(--bg4); }
-.user-item-chat.active { background:var(--accent);color:#fff; }
-.user-item-chat.active .user-name { color:#fff; }
-.user-item-chat.active .user-email { color:rgba(255,255,255,0.8); }
+/* Error items */
+.err-item { background:var(--bg2);border:1px solid rgba(255,83,112,0.2);border-radius:var(--r);padding:12px 14px;margin:8px 14px;cursor:pointer; }
+.err-msg { font-size:13px;color:var(--red);margin-bottom:4px;word-break:break-all; }
+.err-time { font-size:11px;color:var(--text3); }
 
-.warning-notice { background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.3);border-radius:var(--r);padding:12px 16px;margin:12px 16px;color:var(--yellow);font-size:12px;display:none; }
-.warning-notice.show { display:block; }
+/* Broadcast */
+.broadcast-area { padding:14px; }
+.broadcast-inp { width:100%;background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--r);padding:12px 14px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;resize:none;margin-bottom:12px;min-height:80px; }
+.broadcast-inp:focus { border-color:var(--accent); }
 
-.sec-label { font-size:11px;font-weight:800;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;padding:14px 16px 8px; }
+/* Chat section */
+.chat-user-list { display:flex;flex-direction:column;gap:6px;padding:10px; }
+.cu-item { display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--r);cursor:pointer;transition:all .2s; }
+.cu-item.selected { background:rgba(124,110,255,0.2);border:1px solid rgba(124,110,255,0.3); }
+.cu-item:active { background:var(--bg4); }
+.chat-area { flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px; }
+.a-msg { max-width:75%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word; }
+.a-msg.admin { align-self:flex-end;background:linear-gradient(135deg,var(--accent),#9d8fff);color:#fff;border-bottom-right-radius:4px; }
+.a-msg.user { align-self:flex-start;background:var(--bg3);border:1px solid var(--border2);border-bottom-left-radius:4px; }
+.chat-input-row { display:flex;gap:8px;padding:10px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0; }
+.a-inp { flex:1;background:var(--bg3);border:1.5px solid var(--border2);border-radius:20px;padding:10px 14px;color:var(--text);font-size:13px;font-family:var(--font);outline:none; }
+.a-inp:focus { border-color:var(--accent); }
+.a-send { width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#9d8fff);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0; }
+
+/* Log */
+.log-item { padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px; }
+.log-action { font-weight:700;color:var(--accent); }
+.log-time { color:var(--text3);font-size:11px; }
 </style>
 </head>
 <body>
 <div id="toast"></div>
 
 <!-- LOGIN -->
-<div id="admin-login" style="width:100%;max-width:380px;">
+<div id="admin-login">
   <div class="login-card">
-    <div class="admin-badge">🛡 Admin Panel</div>
+    <div class="admin-badge"><i class="fas fa-shield-halved"></i> Admin Panel</div>
     <div style="font-size:24px;font-weight:800;font-family:var(--font2);margin-bottom:4px;">ChatCity Admin</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:24px;">Restricted access only</div>
-    <div style="margin-bottom:12px;">
-      <label class="form-label" style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;">Admin Email</label>
-      <input class="inp" type="email" id="a-email" placeholder="admin@chatcity.com">
-    </div>
-    <div style="margin-bottom:16px;">
-      <label class="form-label" style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;">Admin Passkey</label>
-      <input class="inp" type="password" id="a-pass" placeholder="••••" onkeydown="if(event.key==='Enter')adminLogin()">
-    </div>
-    <button class="btn btn-primary" style="width:100%;" onclick="adminLogin()">Login to Admin →</button>
+    <input class="inp" type="email" id="a-email" placeholder="admin@chatcity.com" style="margin-bottom:10px;">
+    <input class="inp" type="password" id="a-pass" placeholder="Admin passkey" onkeydown="if(event.key==='Enter')adminLogin()" style="margin-bottom:16px;">
+    <button class="btn btn-primary" style="width:100%;" onclick="adminLogin()"><i class="fas fa-sign-in-alt"></i> Login to Admin</button>
     <div id="a-err" style="color:var(--red);font-size:12px;text-align:center;margin-top:10px;min-height:14px;"></div>
   </div>
 </div>
 
 <!-- ADMIN DASHBOARD -->
 <div id="admin-root">
-  <div class="topbar">
-    <div class="topbar-title" style="background:linear-gradient(135deg,var(--accent),#9d8fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🛡 Chat<span style="color:var(--accent);">City</span> Admin</div>
-    <button class="btn btn-ghost" style="padding:8px 14px;font-size:13px;" onclick="adminLogout()">Logout</button>
+  <div class="topbar" style="background:linear-gradient(135deg,#0a0a1f,#141430);">
+    <div class="topbar-title" style="color:var(--yellow);"><i class="fas fa-shield-halved"></i> Admin Panel</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="refreshAll()"><i class="fas fa-rotate-right"></i></button>
+      <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
   </div>
 
-  <!-- TABS -->
+  <!-- Tab Nav -->
   <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
-    <button class="tab-btn" onclick="switchTab('chatting')">💬 Chatting</button>
-    <button class="tab-btn" onclick="switchTab('users')">👥 Users</button>
-    <button class="tab-btn" onclick="switchTab('suggestions')">💡 Suggest</button>
-    <button class="tab-btn" onclick="switchTab('errors')">⚠️ Errors</button>
+    <button class="tab-btn active" onclick="switchTab('overview')"><i class="fas fa-chart-pie"></i> Overview</button>
+    <button class="tab-btn" onclick="switchTab('users')"><i class="fas fa-users"></i> Users</button>
+    <button class="tab-btn" onclick="switchTab('messages')"><i class="fas fa-comment-dots"></i> Chat</button>
+    <button class="tab-btn" onclick="switchTab('broadcast')"><i class="fas fa-bullhorn"></i> Broadcast</button>
+    <button class="tab-btn" onclick="switchTab('errors')"><i class="fas fa-bug"></i> Errors</button>
+    <button class="tab-btn" onclick="switchTab('logs')"><i class="fas fa-list"></i> Logs</button>
   </div>
 
-  <!-- DASHBOARD TAB -->
-  <div id="dashboard-tab" class="tab-content active" style="flex-direction:column;overflow-y:auto;">
+  <!-- OVERVIEW TAB -->
+  <div class="tab-pane active" id="tab-overview">
     <div class="stat-grid">
-      <div class="stat-card">
-        <div class="stat-num" id="stat-users">—</div>
+      <div class="stat-card" style="border-color:rgba(124,110,255,0.3);">
+        <div class="stat-icon" style="color:var(--accent);"><i class="fas fa-users"></i></div>
+        <div class="stat-num" id="s-total" style="color:var(--accent);">0</div>
         <div class="stat-label">Total Users</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-num" id="stat-online" style="color:var(--green);">—</div>
+      <div class="stat-card" style="border-color:rgba(45,212,160,0.3);">
+        <div class="stat-icon" style="color:var(--green);"><i class="fas fa-circle"></i></div>
+        <div class="stat-num" id="s-online" style="color:var(--green);">0</div>
         <div class="stat-label">Online Now</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-num" id="stat-chats" style="color:var(--yellow);">—</div>
+      <div class="stat-card" style="border-color:rgba(255,107,157,0.3);">
+        <div class="stat-icon" style="color:var(--accent2);"><i class="fas fa-comment-dots"></i></div>
+        <div class="stat-num" id="s-chats" style="color:var(--accent2);">0</div>
         <div class="stat-label">Total Chats</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-num" id="stat-errors" style="color:var(--red);">—</div>
-        <div class="stat-label">Errors</div>
+      <div class="stat-card" style="border-color:rgba(255,83,112,0.3);">
+        <div class="stat-icon" style="color:var(--red);"><i class="fas fa-ban"></i></div>
+        <div class="stat-num" id="s-banned" style="color:var(--red);">0</div>
+        <div class="stat-label">Banned</div>
       </div>
     </div>
-    <div class="sec-label" style="padding:16px 16px 8px;">SUGGESTED USERS</div>
-    <div style="padding:16px;background:var(--bg3);border-radius:var(--r);margin:0 16px;font-size:14px;color:var(--green);font-weight:700;">
-      <span id="sugg-count">0</span> users enabled
-    </div>
-  </div>
-
-  <!-- CHATTING TAB -->
-  <div id="chatting-tab" class="tab-content" style="flex-direction:row;gap:0;">
-    <!-- User list -->
-    <div style="width:280px;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;">
-      <div style="padding:12px 16px;">
-        <input type="text" id="chat-search" placeholder="🔍 Search users…" style="width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:12px;font-family:var(--font);outline:none;" oninput="filterChatUsers()">
-      </div>
-      <div id="chat-users-list" class="user-list-chat" style="padding:8px 16px;"></div>
-    </div>
-
-    <!-- Chat area -->
-    <div style="flex:1;display:flex;flex-direction:column;">
-      <div id="chat-area-empty" style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:14px;">
-        👤 Select a user to start chatting
-      </div>
-
-      <div id="chat-area-active" style="flex:1;display:none;flex-direction:column;">
-        <!-- Header -->
-        <div class="chat-header">
-          <div class="chat-header-av" id="chat-av">?</div>
-          <div class="chat-header-info">
-            <div class="chat-header-name" id="chat-name">—</div>
-            <div class="chat-header-status" id="chat-status">offline</div>
-          </div>
-          <button class="chat-header-btn" onclick="sendWarning()" title="Send Warning">⚠️</button>
-          <button class="chat-header-btn" onclick="toggleBan()" title="Ban/Unban" id="ban-btn">🔒</button>
-        </div>
-
-        <!-- Warning notice -->
-        <div class="warning-notice" id="warning-notice">
-          ⚠️ WARNING: This user has received a warning
-        </div>
-
-        <!-- Messages -->
-        <div class="chat-messages" id="chat-messages"></div>
-
-        <!-- Input -->
-        <div class="chat-input-wrap">
-          <textarea class="chat-inp" id="chat-msg-inp" placeholder="Type message..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg()}"></textarea>
-          <button class="send-btn" onclick="sendChatMsg()">➤</button>
-        </div>
+    <div style="padding:0 14px 14px;">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text2);"><i class="fas fa-clock"></i> Recent Signups</div>
+        <div id="recent-users" style="display:flex;flex-direction:column;gap:8px;"></div>
       </div>
     </div>
   </div>
 
   <!-- USERS TAB -->
-  <div id="users-tab" class="tab-content" style="overflow-y:auto;">
-    <div class="sec-label" style="padding:16px 16px 8px;">ALL USERS</div>
+  <div class="tab-pane" id="tab-users">
+    <div style="padding:10px 14px;">
+      <input class="inp" type="text" id="user-search" placeholder="🔍 Search users…" oninput="filterUsers()" style="margin-bottom:0;">
+    </div>
     <div id="users-list"></div>
   </div>
 
-  <!-- SUGGESTIONS TAB -->
-  <div id="suggestions-tab" class="tab-content" style="overflow-y:auto;">
-    <div class="sec-label" style="padding:16px 16px 8px;">MANAGE SUGGESTIONS</div>
-    <div style="padding:16px;color:var(--text2);font-size:12px;background:var(--bg3);margin:16px;border-radius:var(--r);">
-      ✅ Enable users to show in suggestions list
+  <!-- CHAT TAB (Admin messages individual users) -->
+  <div class="tab-pane" id="tab-messages" style="flex-direction:row;">
+    <div style="width:200px;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;">
+      <div style="padding:10px;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;border-bottom:1px solid var(--border);">SELECT USER</div>
+      <div class="chat-user-list" id="chat-user-list"></div>
     </div>
-    <div id="suggestions-mgmt"></div>
+    <div style="flex:1;display:flex;flex-direction:column;" id="chat-panel">
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;padding:20px;text-align:center;" id="chat-placeholder">
+        <div><i class="fas fa-comments" style="font-size:40px;opacity:.2;display:block;margin-bottom:12px;"></i>Select a user to chat</div>
+      </div>
+      <div class="chat-area" id="chat-area" style="display:none;"></div>
+      <div class="chat-input-row" id="chat-input-row" style="display:none;">
+        <input class="a-inp" type="text" id="a-msg-inp" placeholder="Message…" onkeydown="if(event.key==='Enter')sendAdminMsg()">
+        <button class="a-send" onclick="sendAdminMsg()"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BROADCAST TAB -->
+  <div class="tab-pane" id="tab-broadcast">
+    <div class="broadcast-area">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text2);"><i class="fas fa-bullhorn"></i> Broadcast Message to All Users</div>
+      <textarea class="broadcast-inp" id="bc-msg" placeholder="Type your broadcast message…"></textarea>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:12px;" onclick="sendBroadcast()"><i class="fas fa-paper-plane"></i> Send Broadcast</button>
+      <div style="font-size:12px;color:var(--text3);text-align:center;"><i class="fas fa-info-circle"></i> This will send a message to all registered users</div>
+      <div style="margin-top:20px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;"><i class="fas fa-history"></i> Past Broadcasts</div>
+        <div id="bc-history"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ERRORS TAB -->
-  <div id="errors-tab" class="tab-content" style="overflow-y:auto;">
-    <div class="sec-label" style="padding:16px 16px 8px;">ERROR LOG</div>
-    <div id="error-list">
-      <div style="text-align:center;padding:24px;color:var(--text3);font-size:13px;">No errors logged 🎉</div>
+  <div class="tab-pane" id="tab-errors">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);">
+      <span style="font-size:13px;font-weight:700;color:var(--text2);"><i class="fas fa-bug"></i> Error Logs</span>
+      <button class="action-btn danger" onclick="clearErrors()"><i class="fas fa-trash"></i> Clear All</button>
     </div>
+    <div id="errors-list"></div>
+  </div>
+
+  <!-- LOGS TAB -->
+  <div class="tab-pane" id="tab-logs">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);">
+      <span style="font-size:13px;font-weight:700;color:var(--text2);"><i class="fas fa-list"></i> Admin Action Logs</span>
+      <button class="action-btn" onclick="loadLogs()"><i class="fas fa-rotate-right"></i></button>
+    </div>
+    <div id="logs-list"></div>
+  </div>
+</div>
+
+<!-- User Detail Modal -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div id="user-modal-body"></div>
   </div>
 </div>
 
 <script type="module">
-import { 
-  db, ref, get, set, push, onValue, remove, 
-  colorFor, initialsOf, ADMIN_UID 
+import {
+  auth, db, ref, get, set, push, onValue, remove,
+  onAuthStateChanged, signInWithEmailAndPassword, signOut,
+  colorFor, initialsOf, fmtTime, fmtDate,
+  toast, go, ADMIN_EMAIL, ADMIN_PASS, ADMIN_UID
 } from './firebase.js';
 
-const ADMIN_EMAIL  = 'admin@chatcity.com';
-const ADMIN_PASS   = '9999';
-const ADMIN_KEY    = 'cc_admin_sess';
+let allUsers={}, chatTarget=null, chatListener=null;
+let adminLoggedIn=false;
+window.go=go;
 
-let allUsers = {};
-let currentChatUser = null;
-let chatMsgsListener = null;
-
-function fmtDate(ts){
-  try {
-    const d=new Date(ts);
-    return d.toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
-  } catch {
-    return 'Unknown';
+// ── ADMIN LOGIN ──
+window.adminLogin=async()=>{
+  const email=document.getElementById('a-email').value.trim();
+  const pass=document.getElementById('a-pass').value;
+  if(email!==ADMIN_EMAIL||pass!==ADMIN_PASS){
+    document.getElementById('a-err').textContent='❌ Invalid credentials';return;
   }
-}
-
-function fmtTime(ts) {
-  const d = new Date(ts);
-  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
-
-window.switchTab = tab => {
-  try {
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-    event.target.classList.add('active');
-    document.getElementById(tab+'-tab').classList.add('active');
-  } catch(e) {
-    console.error('Tab switch error:', e);
-  }
-};
-
-// ── Login ──
-window.adminLogin=()=>{
-  try {
-    const email=document.getElementById('a-email').value.trim();
-    const pass=document.getElementById('a-pass').value;
-    const err=document.getElementById('a-err');
-    if(email===ADMIN_EMAIL&&pass===ADMIN_PASS){
-      sessionStorage.setItem(ADMIN_KEY,'1');
-      showDashboard();
-    } else {
-      err.textContent='Wrong email or passkey';
-      setTimeout(()=>err.textContent='',3000);
-    }
-  } catch(e) {
-    console.error('Login error:', e);
-  }
+  adminLoggedIn=true;
+  document.getElementById('admin-login').style.display='none';
+  document.getElementById('admin-root').style.display='flex';
+  await loadAll();
 };
 
 window.adminLogout=()=>{
-  sessionStorage.removeItem(ADMIN_KEY);
+  adminLoggedIn=false;
+  document.getElementById('admin-login').style.display='flex';
   document.getElementById('admin-root').style.display='none';
-  document.getElementById('admin-login').style.display='block';
 };
 
-if(sessionStorage.getItem(ADMIN_KEY)==='1'){
-  document.getElementById('admin-login').style.display='none';
-  showDashboard();
+async function loadAll() {
+  await loadStats();
+  await loadUsers();
+  await loadErrors();
+  await loadLogs();
+  await loadBcHistory();
 }
 
-async function showDashboard(){
-  try {
-    document.getElementById('admin-login').style.display='none';
-    const root=document.getElementById('admin-root');
-    root.style.display='flex';
+window.refreshAll=loadAll;
 
-    const usersSnap=await get(ref(db,'users'));
-    const chatsSnap=await get(ref(db,'chats'));
-    const errSnap=await get(ref(db,'admin/errors'));
-    const suggsSnap=await get(ref(db,'suggestions'));
+// ── STATS ──
+async function loadStats() {
+  const [usersSnap,chatsSnap,bannedSnap]=await Promise.all([
+    get(ref(db,'users')), get(ref(db,'chats')), get(ref(db,'admin/banned'))
+  ]);
+  const users=usersSnap.val()||{};
+  const chats=chatsSnap.val()||{};
+  const banned=bannedSnap.val()||{};
+  allUsers=users;
 
-    allUsers=usersSnap.val()||{};
-    const users=Object.entries(allUsers);
-    const online=users.filter(([,u])=>u.online).length;
-    const chats=Object.keys(chatsSnap.val()||{}).length;
-    const errors=Object.entries(errSnap.val()||{});
-    const suggestions=suggsSnap.val()||{};
-    const suggCount=Object.values(suggestions).filter(v=>v===true).length;
+  const online=Object.values(users).filter(u=>u.online).length;
+  const bannedCount=Object.keys(banned).filter(uid=>banned[uid]===true).length;
 
-    document.getElementById('stat-users').textContent=users.length;
-    document.getElementById('stat-online').textContent=online;
-    document.getElementById('stat-chats').textContent=chats;
-    document.getElementById('stat-errors').textContent=errors.length;
-    document.getElementById('sugg-count').textContent=suggCount;
+  document.getElementById('s-total').textContent=Object.keys(users).length;
+  document.getElementById('s-online').textContent=online;
+  document.getElementById('s-chats').textContent=Object.keys(chats).length;
+  document.getElementById('s-banned').textContent=bannedCount;
 
-    // Chat users list
-    renderChatUsersList(users);
-
-    // All users list
-    const ul=document.getElementById('users-list');
-    ul.innerHTML='';
-    users.sort((a,b)=>a[1].name?.localeCompare(b[1].name||'')).forEach(([uid,u])=>{
-      const div=document.createElement('div');
-      div.className='user-item';
-      div.innerHTML=`<div class="${u.online?'online':'offline'}-ind"></div>
-        <div class="av" style="width:36px;height:36px;border-radius:50%;background:${u.color||'#7c6eff'};font-size:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">${u.initials||'?'}</div>
-        <div class="user-info">
-          <div class="user-name">${u.name||'Unknown'}</div>
-          <div class="user-email">${u.email||''}</div>
-        </div>
-        <div style="font-size:11px;color:var(--text3);text-align:right;">${u.online?'<span style="color:var(--green);">● Online</span>':'Offline'}</div>`;
-      ul.appendChild(div);
-    });
-
-    // Suggestions
-    const suggMgmt=document.getElementById('suggestions-mgmt');
-    suggMgmt.innerHTML='';
-    users.sort((a,b)=>a[1].name?.localeCompare(b[1].name||'')).forEach(([uid,u])=>{
-      if(!uid || !u) return;
-      
-      const isInSugg=suggestions[uid]===true;
-      const item=document.createElement('div');
-      item.className='user-item';
-      item.innerHTML=`<div class="${isInSugg?'online':'offline'}-ind"></div>
-        <div class="av" style="width:36px;height:36px;border-radius:50%;background:${u.color||'#7c6eff'};font-size:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">${u.initials||'?'}</div>
-        <div class="user-info">
-          <div class="user-name">${u.name||'Unknown'}</div>
-          <div class="user-email">${u.email||''}</div>
-        </div>
-        <label class="checkbox-wrapper" style="margin-right:10px;">
-          <input type="checkbox" ${isInSugg?'checked':''} onchange="toggleSuggestion('${uid}',this.checked)">
-          <span style="font-size:12px;color:var(--text2);">${isInSugg?'✓':'Add'}</span>
-        </label>`;
-      suggMgmt.appendChild(item);
-    });
-
-    // Errors
-    const errList=document.getElementById('error-list');
-    if(errors.length){
-      errList.innerHTML='';
-      errors.slice(-20).reverse().forEach(([id,e])=>{
-        try {
-          const div=document.createElement('div');
-          div.className='error-item';
-          const errText = typeof e.error === 'string' ? e.error : JSON.stringify(e.error);
-          div.innerHTML=`<div class="error-msg">⚠ ${errText||'Unknown error'}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:4px;">${e.ts?fmtDate(e.ts):'Unknown time'}</div>
-            <button onclick="clearErr('${id}')" style="margin-top:8px;background:none;border:1px solid rgba(255,83,112,.3);color:var(--red);border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Clear</button>`;
-          errList.appendChild(div);
-        } catch(err) {
-          console.error('Error rendering:', err);
-        }
-      });
-    }
-
-    onValue(ref(db,'users'),snap=>{
-      const all=Object.values(snap.val()||{});
-      document.getElementById('stat-online').textContent=all.filter(u=>u.online).length;
-    });
-
-  } catch(e) {
-    console.error('Dashboard error:', e);
-  }
+  // Recent signups
+  const sorted=Object.entries(users).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).slice(0,5);
+  const el=document.getElementById('recent-users');
+  el.innerHTML=sorted.map(([uid,u])=>`
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:36px;height:36px;border-radius:50%;background:${u.color||colorFor(uid)};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;color:#fff;">${u.initials||'?'}</div>
+      <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">${u.name||'Unknown'}</div><div style="font-size:11px;color:var(--text3);">${u.email||''}</div></div>
+      <span style="font-size:11px;color:var(--text3);">${u.createdAt?fmtDate(u.createdAt):''}</span>
+    </div>`).join('');
 }
 
-function renderChatUsersList(users) {
-  const list = document.getElementById('chat-users-list');
-  list.innerHTML = '';
-  users.sort((a,b)=>a[1].name?.localeCompare(b[1].name||'')).forEach(([uid,u])=>{
-    const item = document.createElement('div');
-    item.className = 'user-item-chat';
-    item.id = 'chat-user-'+uid;
-    item.innerHTML = `<div class="av" style="width:32px;height:32px;border-radius:50%;background:${u.color||'#7c6eff'};font-size:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">${u.initials||'?'}</div>
-      <div style="flex:1;min-width:0;">
-        <div class="user-name" style="font-size:14px;">${u.name||'Unknown'}</div>
-        <div class="user-email">${u.email||''}</div>
+// ── USERS ──
+async function loadUsers() {
+  const snap=await get(ref(db,'users'));
+  allUsers=snap.val()||{};
+  const bannedSnap=await get(ref(db,'admin/banned'));
+  const banned=bannedSnap.val()||{};
+  const warnSnap=await get(ref(db,'admin/warnings'));
+  const warned=warnSnap.val()||{};
+
+  const list=document.getElementById('users-list');
+  list.innerHTML='';
+  const chatList=document.getElementById('chat-user-list');
+  chatList.innerHTML='';
+
+  Object.entries(allUsers).sort((a,b)=>(a[1].name||'').localeCompare(b[1].name||'')).forEach(([uid,u])=>{
+    const isBanned=banned[uid]===true;
+    const isWarned=warned[uid]===true;
+    const row=document.createElement('div');
+    row.className='user-row';
+    row.dataset.name=(u.name||'').toLowerCase();
+    row.innerHTML=`
+      <div class="u-av av" style="background:${u.color||colorFor(uid)};color:#fff;">${u.photo?`<img src="${u.photo}" alt="">`:u.initials||'?'}</div>
+      <div class="u-info">
+        <div class="u-name">${u.name||'User'} ${isBanned?'<span class="u-badge badge-banned">BANNED</span>':''} ${isWarned?'<span class="u-badge badge-warned">WARNED</span>':''}</div>
+        <div class="u-sub"><i class="fas fa-envelope" style="font-size:9px;"></i> ${u.email||''}</div>
+        <div class="u-sub"><i class="fas fa-circle" style="font-size:8px;color:${u.online?'var(--green)':'var(--text3)'}"></i> ${u.online?'Online':'Offline'} &nbsp;·&nbsp; <i class="fas fa-hashtag" style="font-size:9px;"></i> ${u.code||'—'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <button class="action-btn" onclick="openUserModal('${uid}')"><i class="fas fa-eye"></i></button>
+        ${isBanned?`<button class="action-btn ok" onclick="unbanUser('${uid}')"><i class="fas fa-unlock"></i></button>`:`<button class="action-btn danger" onclick="banUser('${uid}')"><i class="fas fa-ban"></i></button>`}
       </div>`;
-    item.onclick = () => selectChatUser(uid, u);
-    list.appendChild(item);
+    list.appendChild(row);
+
+    // Chat user list
+    const cu=document.createElement('div');
+    cu.className='cu-item';
+    cu.innerHTML=`<div style="width:32px;height:32px;border-radius:50%;background:${u.color||colorFor(uid)};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;color:#fff;">${u.initials||'?'}</div><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.name||'User'}</div><div style="width:7px;height:7px;border-radius:50%;background:${u.online?'var(--green)':'var(--text3)'};display:inline-block;"></div></div>`;
+    cu.onclick=()=>openAdminChat(uid,u,cu);
+    chatList.appendChild(cu);
   });
 }
 
-window.filterChatUsers = () => {
-  const q = document.getElementById('chat-search').value.toLowerCase();
-  document.querySelectorAll('.user-item-chat').forEach(el => {
-    const text = (el.textContent||'').toLowerCase();
-    el.style.display = text.includes(q) ? '' : 'none';
+window.filterUsers=()=>{
+  const q=document.getElementById('user-search').value.toLowerCase();
+  document.querySelectorAll('.user-row').forEach(r=>{
+    r.style.display=(!q||r.dataset.name.includes(q))?'':'none';
   });
 };
 
-function selectChatUser(uid, user) {
-  currentChatUser = {uid, ...user};
-  document.querySelectorAll('.user-item-chat').forEach(el=>el.classList.remove('active'));
-  document.getElementById('chat-user-'+uid).classList.add('active');
-  document.getElementById('chat-area-empty').style.display='none';
-  document.getElementById('chat-area-active').style.display='flex';
-  
-  document.getElementById('chat-av').textContent = user.initials||'?';
-  document.getElementById('chat-av').style.background = user.color||colorFor(uid);
-  document.getElementById('chat-name').textContent = user.name||'User';
-  
-  get(ref(db,`admin/banned/${uid}`)).then(snap=>{
-    const isBanned = snap.val()===true;
-    document.getElementById('ban-btn').textContent = isBanned ? '✅' : '🔒';
-  });
+// ── USER MODAL ──
+window.openUserModal=async uid=>{
+  const u=allUsers[uid]||{};
+  const bannedSnap=await get(ref(db,`admin/banned/${uid}`));
+  const isBanned=bannedSnap.val()===true;
+  document.getElementById('user-modal-body').innerHTML=`
+    <div style="text-align:center;padding:16px 0 20px;">
+      <div style="width:72px;height:72px;border-radius:50%;background:${u.color||colorFor(uid)};display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin:0 auto 12px;overflow:hidden;">${u.photo?`<img src="${u.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(u.initials||'?')}</div>
+      <div style="font-size:18px;font-weight:800;">${u.name||'Unknown'}</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:4px;">${u.email||''}</div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;">
+        <span class="u-badge ${u.online?'badge-online':'badge-offline'}" style="padding:4px 12px;border-radius:10px;">${u.online?'🟢 Online':'⚫ Offline'}</span>
+        ${isBanned?'<span class="u-badge badge-banned" style="padding:4px 12px;border-radius:10px;">🚫 Banned</span>':''}
+        ${u.code?`<span class="u-badge" style="padding:4px 12px;border-radius:10px;background:rgba(124,110,255,0.15);color:var(--accent);">#${u.code}</span>`:''}
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${isBanned?`<button class="btn" style="width:100%;background:rgba(45,212,160,0.15);color:var(--green);border:1px solid rgba(45,212,160,0.3);" onclick="unbanUser('${uid}');document.getElementById('user-modal').classList.remove('show');"><i class="fas fa-unlock"></i> Unban User</button>`:`<button class="btn btn-danger" style="width:100%;" onclick="banUser('${uid}');document.getElementById('user-modal').classList.remove('show');"><i class="fas fa-ban"></i> Ban User</button>`}
+      <button class="btn" style="width:100%;background:rgba(247,201,75,0.15);color:var(--yellow);border:1px solid rgba(247,201,75,0.3);" onclick="warnUser('${uid}')"><i class="fas fa-triangle-exclamation"></i> Send Warning</button>
+      <button class="btn btn-primary" style="width:100%;" onclick="openAdminChatById('${uid}')"><i class="fas fa-comment"></i> Message User</button>
+      <button class="btn btn-danger" style="width:100%;" onclick="deleteUser('${uid}')"><i class="fas fa-trash"></i> Delete User</button>
+    </div>`;
+  document.getElementById('user-modal').classList.add('show');
+};
+document.getElementById('user-modal').addEventListener('click',e=>{ if(e.target.id==='user-modal') e.target.classList.remove('show'); });
 
-  get(ref(db,`admin/warnings/${uid}`)).then(snap=>{
-    document.getElementById('warning-notice').classList.toggle('show', snap.val()===true);
-  });
+window.banUser=async uid=>{
+  if(!confirm('Ban this user?')) return;
+  await set(ref(db,`admin/banned/${uid}`),true);
+  await logAction('BAN',uid);
+  toast('User banned','ok'); await loadUsers();
+};
+window.unbanUser=async uid=>{
+  await set(ref(db,`admin/banned/${uid}`),null);
+  await logAction('UNBAN',uid);
+  toast('User unbanned','ok'); await loadUsers();
+};
+window.warnUser=async uid=>{
+  await set(ref(db,`admin/warnings/${uid}`),true);
+  // Send system message to user
+  const r=push(ref(db,`chats/admin__${uid}/messages`));
+  await set(r,{ id:r.key,senderId:ADMIN_UID,ts:Date.now(),type:'text',text:'⚠️ Warning: Your account has received a warning for violating ChatCity terms. Further violations may result in a permanent ban.',seen:false });
+  await logAction('WARN',uid);
+  toast('Warning sent','ok');
+};
+window.deleteUser=async uid=>{
+  if(!confirm('Permanently delete this user? This cannot be undone.')) return;
+  await set(ref(db,`users/${uid}`),null);
+  await set(ref(db,`search/users/${uid}`),null);
+  await logAction('DELETE',uid);
+  toast('User deleted','ok');
+  document.getElementById('user-modal').classList.remove('show');
+  await loadUsers();
+};
+window.openAdminChatById=uid=>{ document.getElementById('user-modal').classList.remove('show'); switchTab('messages'); const u=allUsers[uid]||{}; openAdminChat(uid,u,null); };
 
-  onValue(ref(db,`users/${uid}/online`), snap => {
-    document.getElementById('chat-status').textContent = snap.val() ? '● Online' : '● Offline';
-    document.getElementById('chat-status').style.color = snap.val() ? 'var(--green)' : '';
+// ── ADMIN CHAT ──
+function openAdminChat(uid,u,btn) {
+  document.querySelectorAll('.cu-item').forEach(el=>el.classList.remove('selected'));
+  if(btn) btn.classList.add('selected');
+  chatTarget={uid,...u};
+  document.getElementById('chat-placeholder').style.display='none';
+  document.getElementById('chat-area').style.display='flex';
+  document.getElementById('chat-input-row').style.display='flex';
+  if(chatListener) chatListener();
+  const area=document.getElementById('chat-area');
+  area.innerHTML='';
+  chatListener=onValue(ref(db,`chats/${ADMIN_UID}__${uid}/messages`), snap=>{
+    area.innerHTML='';
+    snap.forEach(c=>{
+      const m=c.val();
+      const div=document.createElement('div');
+      const isAdmin=m.senderId===ADMIN_UID;
+      div.className=`a-msg ${isAdmin?'admin':'user'}`;
+      div.innerHTML=`${m.text||''}<div style="font-size:10px;opacity:.6;margin-top:3px;text-align:${isAdmin?'right':'left'}">${fmtTime(m.ts)}</div>`;
+      area.appendChild(div);
+    });
+    area.scrollTop=area.scrollHeight;
   });
-
-  listenChatMessages(uid);
 }
 
-function listenChatMessages(targetUid) {
-  if(chatMsgsListener) chatMsgsListener = null;
-  const chatIdVal = [ADMIN_UID, targetUid].sort().join('__');
-  const msgsRef = ref(db, `chats/${chatIdVal}/messages`);
-  
-  onValue(msgsRef, snap => {
-    const msgs = Object.values(snap.val()||{}).sort((a,b)=>a.ts-b.ts);
-    renderChatMessages(msgs);
-  });
-}
-
-function renderChatMessages(msgs) {
-  const area = document.getElementById('chat-messages');
-  area.innerHTML = '';
-  msgs.forEach(m => {
-    const div = document.createElement('div');
-    const isAdmin = m.senderId === ADMIN_UID;
-    div.className = 'msg-row ' + (isAdmin ? 'admin' : 'user');
-    
-    const bubble = document.createElement('div');
-    bubble.className = 'msg-bubble ' + (isAdmin ? 'admin' : 'user');
-    bubble.textContent = m.text||'';
-    
-    const time = document.createElement('div');
-    time.className = 'msg-time';
-    time.textContent = fmtTime(m.ts);
-    
-    div.appendChild(bubble);
-    div.appendChild(time);
-    area.appendChild(div);
-  });
-  area.scrollTop = area.scrollHeight;
-}
-
-window.sendChatMsg = async () => {
-  if(!currentChatUser) return;
-  const text = document.getElementById('chat-msg-inp').value.trim();
-  if(!text) return;
-  document.getElementById('chat-msg-inp').value = '';
-  
-  const chatIdVal = [ADMIN_UID, currentChatUser.uid].sort().join('__');
-  const r = push(ref(db, `chats/${chatIdVal}/messages`));
-  await set(r, {
-    id: r.key,
-    senderId: ADMIN_UID,
-    ts: Date.now(),
-    text,
-    type: 'text',
-    seen: false
-  });
+window.sendAdminMsg=async()=>{
+  if(!chatTarget) return;
+  const inp=document.getElementById('a-msg-inp');
+  const text=inp.value.trim(); if(!text) return;
+  inp.value='';
+  const chatId=`${ADMIN_UID}__${chatTarget.uid}`;
+  const r=push(ref(db,`chats/${chatId}/messages`));
+  await set(r,{ id:r.key,senderId:ADMIN_UID,ts:Date.now(),type:'text',text,seen:false });
 };
 
-window.sendWarning = async () => {
-  if(!currentChatUser) return;
-  const uid = currentChatUser.uid;
-  await set(ref(db, `admin/warnings/${uid}`), true);
-  document.getElementById('warning-notice').classList.add('show');
-  
-  const chatIdVal = [ADMIN_UID, uid].sort().join('__');
-  const r = push(ref(db, `chats/${chatIdVal}/messages`));
-  await set(r, {
-    id: r.key,
-    senderId: ADMIN_UID,
-    ts: Date.now(),
-    text: '⚠️ [ADMIN WARNING] - Please follow community guidelines',
-    type: 'text',
-    seen: false
-  });
-};
-
-window.toggleBan = async () => {
-  if(!currentChatUser) return;
-  const uid = currentChatUser.uid;
-  const snap = await get(ref(db, `admin/banned/${uid}`));
-  const isBanned = snap.val()===true;
-  
-  if(isBanned) {
-    await remove(ref(db, `admin/banned/${uid}`));
-    document.getElementById('ban-btn').textContent = '🔒';
-  } else {
-    await set(ref(db, `admin/banned/${uid}`), true);
-    document.getElementById('ban-btn').textContent = '✅';
+// ── BROADCAST ──
+window.sendBroadcast=async()=>{
+  const msg=document.getElementById('bc-msg').value.trim();
+  if(!msg){ toast('Enter a message','error'); return; }
+  if(!confirm(`Send broadcast to all users?\n\n"${msg}"`)) return;
+  const usersSnap=await get(ref(db,'users'));
+  const users=usersSnap.val()||{};
+  let count=0;
+  for(const uid of Object.keys(users)) {
+    const chatId=`${ADMIN_UID}__${uid}`;
+    const r=push(ref(db,`chats/${chatId}/messages`));
+    await set(r,{ id:r.key,senderId:ADMIN_UID,ts:Date.now(),type:'text',text:`📢 Broadcast: ${msg}`,seen:false });
+    count++;
   }
+  // Save broadcast history
+  await push(ref(db,'admin/broadcasts'),{ msg, ts:Date.now(), count });
+  toast(`Broadcast sent to ${count} users!`,'ok');
+  document.getElementById('bc-msg').value='';
+  loadBcHistory();
 };
 
-window.toggleSuggestion=async(uid,isEnabled)=>{
-  try {
-    if(!uid) return;
-    if(isEnabled){
-      await set(ref(db,`suggestions/${uid}`),true);
-    } else {
-      await remove(ref(db,`suggestions/${uid}`));
-    }
-  } catch(e) {
-    console.error('Toggle suggestion error:', e);
-  }
+async function loadBcHistory() {
+  const snap=await get(ref(db,'admin/broadcasts'));
+  const el=document.getElementById('bc-history');
+  el.innerHTML='';
+  const items=[];
+  snap.forEach(c=>items.unshift(c.val()));
+  items.slice(0,10).forEach(b=>{
+    el.innerHTML+=`<div style="background:var(--bg3);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;"><div style="font-size:13px;margin-bottom:4px;">${b.msg}</div><div style="font-size:11px;color:var(--text3);"><i class="fas fa-clock"></i> ${fmtDate(b.ts)} ${fmtTime(b.ts)} &nbsp;·&nbsp; <i class="fas fa-users"></i> ${b.count} users</div></div>`;
+  });
+  if(!items.length) el.innerHTML='<div style="text-align:center;color:var(--text3);padding:20px;font-size:13px;">No broadcasts yet</div>';
+}
+
+// ── ERRORS ──
+async function loadErrors() {
+  const snap=await get(ref(db,'admin/errors'));
+  const list=document.getElementById('errors-list');
+  list.innerHTML='';
+  const items=[];
+  snap.forEach(c=>items.unshift({key:c.key,...c.val()}));
+  if(!items.length){ list.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px;font-size:13px;"><i class="fas fa-check-circle" style="font-size:32px;color:var(--green);display:block;margin-bottom:10px;opacity:.5;"></i>No errors logged</div>'; return; }
+  items.slice(0,50).forEach(e=>{
+    list.innerHTML+=`<div class="err-item"><div class="err-msg"><i class="fas fa-triangle-exclamation"></i> ${e.error||'Unknown error'}</div><div class="err-time"><i class="fas fa-map-marker-alt"></i> ${e.context||'—'} &nbsp;·&nbsp; ${fmtDate(e.ts)} ${fmtTime(e.ts)}</div></div>`;
+  });
+}
+window.clearErrors=async()=>{
+  if(!confirm('Clear all error logs?')) return;
+  await set(ref(db,'admin/errors'),null);
+  await loadErrors();
+  toast('Errors cleared','ok');
 };
 
-window.clearErr=async id=>{
-  try {
-    await remove(ref(db,`admin/errors/${id}`));
-    location.reload();
-  } catch(e) {
-    console.error('Clear error:', e);
-  }
+// ── LOGS ──
+async function logAction(action, uid) {
+  await push(ref(db,'admin/logs'),{ action, uid, ts:Date.now(), admin:ADMIN_EMAIL });
+}
+window.loadLogs=async()=>{
+  const snap=await get(ref(db,'admin/logs'));
+  const el=document.getElementById('logs-list');
+  el.innerHTML='';
+  const items=[];
+  snap.forEach(c=>items.unshift(c.val()));
+  if(!items.length){ el.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px;font-size:13px;">No logs yet</div>'; return; }
+  items.slice(0,100).forEach(l=>{
+    const u=allUsers[l.uid]||{};
+    el.innerHTML+=`<div class="log-item"><span class="log-action">${l.action}</span> &rarr; ${u.name||l.uid||'—'} <span class="log-time">(${fmtDate(l.ts)} ${fmtTime(l.ts)})</span></div>`;
+  });
 };
 
+// ── TABS ──
+window.switchTab=t=>{
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    const tabs=['overview','users','messages','broadcast','errors','logs'];
+    b.classList.toggle('active',tabs[i]===t);
+  });
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById(`tab-${t}`).classList.add('active');
+};
 </script>
 </body>
 </html>
