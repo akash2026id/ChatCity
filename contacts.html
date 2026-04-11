@@ -30,19 +30,19 @@
 .c-info { flex:1;min-width:0; }
 .c-name { font-size:15px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
 .c-email { font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-.add-btn {
-  background:rgba(124,110,255,0.12);
-  border:1px solid rgba(124,110,255,0.25);
-  color:var(--accent); border-radius:10px;
+.chat-btn {
+  background:rgba(45,212,160,0.12);
+  border:1px solid rgba(45,212,160,0.25);
+  color:var(--green); border-radius:10px;
   padding:7px 16px; font-size:12px;font-weight:700;
   cursor:pointer;font-family:var(--font);
   transition:all .2s;flex-shrink:0;
 }
-.add-btn:hover { background:var(--accent);color:#fff; }
-.add-btn.added { background:rgba(45,212,160,0.12);border-color:rgba(45,212,160,0.3);color:var(--green); }
+.chat-btn:hover { background:var(--green);color:#000; }
 .empty { text-align:center;padding:60px 24px;color:var(--text3); }
 .empty-icon { font-size:48px;margin-bottom:12px;opacity:.5; }
 .results-label { font-size:11px;font-weight:800;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;padding:14px 18px 8px; }
+.section-label { font-size:11px;font-weight:800;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;padding:14px 18px 8px;margin-top:10px; }
 </style>
 </head>
 <body>
@@ -69,13 +69,23 @@
       <div id="results-list"></div>
     </div>
 
+    <!-- Suggested Users (Admin Enabled) -->
+    <div id="suggestions-section">
+      <div class="section-label">💡 SUGGESTED USERS</div>
+      <div id="suggestions-list"></div>
+      <div id="no-suggestions" class="empty hidden">
+        <div class="empty-icon">👥</div>
+        <div>No suggestions yet.<br>Admin will add users here.</div>
+      </div>
+    </div>
+
     <!-- My contacts -->
     <div id="contacts-section">
-      <div class="results-label">MY CONTACTS</div>
+      <div class="section-label">MY CONTACTS</div>
       <div id="contacts-list"></div>
       <div id="no-contacts" class="empty hidden">
         <div class="empty-icon">👥</div>
-        <div>No contacts yet.<br>Search above to add people.</div>
+        <div>No contacts yet.<br>Start chatting to add contacts.</div>
       </div>
     </div>
   </div>
@@ -96,7 +106,7 @@ import {
   getSession, setOnline, toast, go
 } from './firebase.js';
 
-let me=null, myContacts={};
+let me=null, myContacts={}, suggestions={};
 window.go=go;
 
 onAuthStateChanged(auth, async user=>{
@@ -106,6 +116,7 @@ onAuthStateChanged(auth, async user=>{
   me=user;
   await setOnline(me.uid);
   loadContacts();
+  loadSuggestions();
 });
 
 function loadContacts(){
@@ -119,38 +130,65 @@ function loadContacts(){
     for(const uid of ids){
       const u=(await get(ref(db,`users/${uid}`))).val();
       if(!u)continue;
-      list.appendChild(buildItem(u,'chat'));
+      list.appendChild(buildContactItem(u));
     }
   });
 }
 
-function buildItem(u, action) {
+function loadSuggestions(){
+  onValue(ref(db,'suggestions'),async snap=>{
+    const suggestedUIDs=snap.val()||{};
+    suggestions=suggestedUIDs;
+    const list=document.getElementById('suggestions-list');
+    list.innerHTML='';
+    const ids=Object.keys(suggestedUIDs).filter(uid=>uid!==me.uid&&suggestedUIDs[uid]===true);
+    
+    if(!ids.length){ 
+      document.getElementById('no-suggestions').classList.remove('hidden'); 
+      return; 
+    }
+    document.getElementById('no-suggestions').classList.add('hidden');
+    
+    for(const uid of ids){
+      const u=(await get(ref(db,`users/${uid}`))).val();
+      if(!u)continue;
+      list.appendChild(buildSuggestionItem(u));
+    }
+  });
+}
+
+function buildContactItem(u) {
   const item=document.createElement('div');
   item.className='contact-item';
   const avHtml=u.photo?`<img src="${u.photo}" alt="">`:`<div class="av c-av" style="background:${u.color||colorFor(u.uid)};width:48px;height:48px;font-size:16px;">${u.initials||initialsOf(u.name||'?')}</div>`;
-  const isAdded=!!myContacts[u.uid];
-
-  if(action==='chat'){
-    item.onclick=()=>{
-      sessionStorage.setItem('cc_chat_target',JSON.stringify({uid:u.uid,name:u.name,initials:u.initials||initialsOf(u.name||'?'),color:u.color||colorFor(u.uid),photo:u.photo||''}));
-      go('chat.html');
-    };
-    item.innerHTML=`<div class="c-av" style="overflow:hidden;">${avHtml}</div>
-      <div class="c-info"><div class="c-name">${u.name||'User'}</div><div class="c-email">${u.email||''}</div></div>
-      <span style="color:var(--accent);font-size:20px;">›</span>`;
-  } else {
-    item.innerHTML=`<div class="c-av" style="overflow:hidden;">${avHtml}</div>
-      <div class="c-info"><div class="c-name">${u.name||'User'}</div><div class="c-email">${u.email||''}</div></div>
-      <button class="add-btn ${isAdded?'added':''}" id="add-${u.uid}" onclick="addContact('${u.uid}',this);event.stopPropagation();">${isAdded?'✓ Added':'Add'}</button>`;
-    if(!isAdded){
-      item.onclick=()=>{
-        sessionStorage.setItem('cc_chat_target',JSON.stringify({uid:u.uid,name:u.name,initials:u.initials||initialsOf(u.name||'?'),color:u.color||colorFor(u.uid),photo:u.photo||''}));
-        go('chat.html');
-      };
-    }
-  }
+  
+  item.onclick=()=>{
+    sessionStorage.setItem('cc_chat_target',JSON.stringify({uid:u.uid,name:u.name,initials:u.initials||initialsOf(u.name||'?'),color:u.color||colorFor(u.uid),photo:u.photo||''}));
+    go('chat.html');
+  };
+  item.innerHTML=`<div class="c-av" style="overflow:hidden;">${avHtml}</div>
+    <div class="c-info"><div class="c-name">${u.name||'User'}</div><div class="c-email">${u.email||''}</div></div>
+    <span style="color:var(--accent);font-size:20px;">›</span>`;
   return item;
 }
+
+function buildSuggestionItem(u) {
+  const item=document.createElement('div');
+  item.className='contact-item';
+  const avHtml=u.photo?`<img src="${u.photo}" alt="">`:`<div class="av c-av" style="background:${u.color||colorFor(u.uid)};width:48px;height:48px;font-size:16px;">${u.initials||initialsOf(u.name||'?')}</div>`;
+  
+  const isContact=!!myContacts[u.uid];
+  
+  item.innerHTML=`<div class="c-av" style="overflow:hidden;">${avHtml}</div>
+    <div class="c-info"><div class="c-name">${u.name||'User'}</div><div class="c-email">${u.email||''}</div></div>
+    <button class="chat-btn" onclick="startChat('${u.uid}','${u.name}','${u.initials||initialsOf(u.name||'?')}','${u.color||colorFor(u.uid)}','${u.photo||''}');event.stopPropagation();">💬 Chat</button>`;
+  return item;
+}
+
+window.startChat=(uid,name,initials,color,photo)=>{
+  sessionStorage.setItem('cc_chat_target',JSON.stringify({uid,name,initials,color,photo}));
+  go('chat.html');
+};
 
 let searchTimer=null;
 window.doSearch=()=>{
@@ -180,17 +218,19 @@ async function runSearch(q){
     list.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div>No users found</div></div>';
     return;
   }
-  found.forEach(u=>list.appendChild(buildItem(u,'add')));
+  found.forEach(u=>list.appendChild(buildSearchResult(u)));
 }
 
-window.addContact=async(uid,btn)=>{
-  btn.textContent='Adding…'; btn.disabled=true;
-  await set(ref(db,`users/${me.uid}/contacts/${uid}`),true);
-  await set(ref(db,`users/${uid}/contacts/${me.uid}`),true);
-  myContacts[uid]=true;
-  btn.textContent='✓ Added'; btn.className='add-btn added'; btn.disabled=false;
-  toast('Contact added!','ok');
-};
+function buildSearchResult(u) {
+  const item=document.createElement('div');
+  item.className='contact-item';
+  const avHtml=u.photo?`<img src="${u.photo}" alt="">`:`<div class="av c-av" style="background:${u.color||colorFor(u.uid)};width:48px;height:48px;font-size:16px;">${u.initials||initialsOf(u.name||'?')}</div>`;
+  
+  item.innerHTML=`<div class="c-av" style="overflow:hidden;">${avHtml}</div>
+    <div class="c-info"><div class="c-name">${u.name||'User'}</div><div class="c-email">${u.email||''}</div></div>
+    <button class="chat-btn" onclick="startChat('${u.uid}','${u.name}','${u.initials||initialsOf(u.name||'?')}','${u.color||colorFor(u.uid)}','${u.photo||''}');event.stopPropagation();">💬 Chat</button>`;
+  return item;
+}
 </script>
 </body>
 </html>
