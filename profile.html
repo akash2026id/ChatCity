@@ -52,8 +52,10 @@
 }
 .code-display:hover { opacity:.9; }
 .code-help { font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5; }
-.copy-btn { background:rgba(124,110,255,0.2);border:1px solid rgba(124,110,255,0.3);color:var(--accent);padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px; }
+.copy-btn { background:rgba(124,110,255,0.2);border:1px solid rgba(124,110,255,0.3);color:var(--accent);padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;font-family:var(--font); }
 .copy-btn:hover { background:var(--accent);color:#fff; }
+.add-friend-input { width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--font2);text-transform:uppercase;outline:none;margin-bottom:10px;margin-top:8px; }
+.add-friend-input:focus { border-color:var(--accent); }
 
 .section {margin:0 16px 6px;}
 .section-card {
@@ -111,7 +113,7 @@
     <div class="code-section">
       <label class="code-label">Your Friend Code</label>
       <div class="code-display" id="friend-code" onclick="copyCode()">——————</div>
-      <button class="copy-btn" onclick="copyCode()">📋 Copy Code</button>
+      <button class="copy-btn" onclick="copyCode()" style="width:100%;">📋 Copy Code</button>
       <div class="code-help">
         Share this code with friends<br>
         They can add you by entering this code
@@ -121,7 +123,7 @@
     <!-- ADD FRIEND BY CODE -->
     <div class="code-section">
       <label class="code-label">Add Friend with Code</label>
-      <input type="text" id="friend-code-input" placeholder="Enter friend's code" maxlength="7" style="width:100%;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--font2);text-transform:uppercase;outline:none;margin-bottom:10px;" onkeydown="if(event.key==='Enter')addFriendByCode()">
+      <input type="text" id="friend-code-input" placeholder="Enter friend's code" maxlength="7" class="add-friend-input" onkeydown="if(event.key==='Enter')addFriendByCode()">
       <button class="copy-btn" style="width:100%;margin:0;" onclick="addFriendByCode()">🔗 Add Friend</button>
       <div class="code-help">
         Ask your friend to share their 7-character code
@@ -196,7 +198,8 @@ import {
   getSession, clearSession, go,
   generateUserCode,
   findUserByCode,
-  addFriendByCode as addFriendByCodeFunc
+  addFriendByCode as addFriendByCodeFunc,
+  updateUserSearchIndex
 } from './firebase.js';
 
 let me=null, userData=null, myCode=null;
@@ -276,6 +279,7 @@ window.uploadPhoto=async el=>{
     const base64=ev.target.result;
     await set(ref(db,`users/${me.uid}/photo`),base64);
     userData.photo=base64;
+    await updateUserSearchIndex(me.uid, userData);
     renderProfile();
     toast('Profile photo updated!','ok');
   };
@@ -393,6 +397,10 @@ window.saveName=async()=>{
   await set(ref(db,`users/${me.uid}/name`),name);
   await set(ref(db,`users/${me.uid}/initials`),initialsOf(name));
   userData.name=name; userData.initials=initialsOf(name);
+  
+  // ✅ UPDATE SEARCH INDEX WITH NEW NAME
+  await updateUserSearchIndex(me.uid, userData);
+  
   closeModal(); renderProfile(); toast('Name updated!','ok');
 };
 
