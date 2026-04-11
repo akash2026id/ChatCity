@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ChatCity — Contacts</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="style.css">
 <style>
 #root { display:flex;flex-direction:column;height:100dvh; }
 .content { flex:1;overflow-y:auto; }
@@ -94,7 +94,7 @@ import {
   onAuthStateChanged,
   colorFor, initialsOf,
   getSession, setOnline, toast, go
-} from './js/firebase.js';
+} from './firebase.js';
 
 let me=null, myContacts={};
 window.go=go;
