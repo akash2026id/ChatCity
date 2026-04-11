@@ -9,7 +9,7 @@
 body { display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto; }
 #admin-root { display:none;flex-direction:column;height:100dvh; }
 .login-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r3);padding:32px 24px;width:100%;max-width:380px; }
-.admin-badge { display:inline-flex;align-items:center;gap:6px;background:rgba(247,201,75,0.15);border:1px solid rgba(247,201,75,0.3);color:var(--yellow);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:20px; }
+.admin-badge { display:inline-flex;align-items:center;gap:6px;background:rgba(247,201,75,0.15);border:1px solid rgba(247,201,75,0.3);color:var(--yellow);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700; }
 .stat-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 16px 0; }
 .stat-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px 16px;text-align:center; }
 .stat-num { font-size:32px;font-weight:800;font-family:var(--font2);color:var(--accent); }
@@ -21,6 +21,16 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
 .user-item { display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border); }
 .online-ind { width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0; }
 .offline-ind { width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0; }
+.user-info { flex:1; }
+.user-name { font-weight:700;font-size:14px; }
+.user-email { font-size:12px;color:var(--text2); }
+.suggestion-toggle { display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;cursor:pointer;user-select:none; }
+.suggestion-toggle input { cursor:pointer; }
+.tab-nav { display:flex;gap:8px;margin:16px;background:var(--bg3);border-radius:var(--r);padding:4px; }
+.tab-nav button { flex:1;padding:10px;border:none;background:transparent;color:var(--text2);cursor:pointer;border-radius:10px;font-weight:700;transition:all .2s; }
+.tab-nav button.active { background:var(--accent);color:#fff; }
+.tab-content { display:none;flex:1;overflow-y:auto; }
+.tab-content.active { display:flex;flex-direction:column; }
 </style>
 </head>
 <body>
@@ -53,8 +63,16 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
     <button class="btn btn-ghost" style="padding:8px 14px;font-size:13px;" onclick="adminLogout()">Logout</button>
   </div>
 
-  <div style="flex:1;overflow-y:auto;padding-bottom:20px;">
-    <!-- Stats -->
+  <!-- TABS -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('users')">👥 Users</button>
+    <button class="tab-btn" onclick="switchTab('suggestions')">💡 Suggestions</button>
+    <button class="tab-btn" onclick="switchTab('errors')">⚠️ Errors</button>
+  </div>
+
+  <!-- DASHBOARD TAB -->
+  <div id="dashboard-tab" class="tab-content active" style="flex-direction:column;padding-bottom:20px;">
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-num" id="stat-users">—</div>
@@ -73,21 +91,32 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
         <div class="stat-label">Errors</div>
       </div>
     </div>
+  </div>
 
-    <!-- Error log -->
+  <!-- USERS TAB -->
+  <div id="users-tab" class="tab-content" style="overflow-y:auto;padding-bottom:20px;">
+    <div class="sec-label" style="padding:16px 16px 8px;">ALL USERS</div>
+    <div id="users-list"></div>
+  </div>
+
+  <!-- SUGGESTIONS TAB -->
+  <div id="suggestions-tab" class="tab-content" style="overflow-y:auto;padding-bottom:20px;">
+    <div class="sec-label" style="padding:16px 16px 8px;">MANAGE SUGGESTIONS</div>
+    <div style="padding:16px;color:var(--text2);font-size:12px;">Toggle users to appear in suggestions list</div>
+    <div id="suggestions-mgmt"></div>
+  </div>
+
+  <!-- ERRORS TAB -->
+  <div id="errors-tab" class="tab-content" style="overflow-y:auto;padding-bottom:20px;">
     <div class="sec-label" style="padding:16px 16px 8px;">ERROR LOG</div>
     <div id="error-list">
       <div style="text-align:center;padding:24px;color:var(--text3);font-size:13px;">No errors logged 🎉</div>
     </div>
-
-    <!-- Users -->
-    <div class="sec-label" style="padding:16px 16px 8px;">ALL USERS</div>
-    <div id="users-list"></div>
   </div>
 </div>
 
 <script type="module">
-import { db, ref, get, onValue, remove } from './firebase.js';
+import { db, ref, get, onValue, remove, set } from './firebase.js';
 
 const ADMIN_EMAIL  = 'admin@chatcity.com';
 const ADMIN_PASS   = '9999';
@@ -97,6 +126,13 @@ function fmtDate(ts){
   const d=new Date(ts);
   return d.toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
 }
+
+window.switchTab = tab => {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(tab+'-tab').classList.add('active');
+};
 
 // ── Login ──
 window.adminLogin=()=>{
@@ -125,7 +161,7 @@ if(sessionStorage.getItem(ADMIN_KEY)==='1'){
 async function showDashboard(){
   document.getElementById('admin-login').style.display='none';
   const root=document.getElementById('admin-root');
-  root.style.display='flex'; root.style.flexDirection='column';
+  root.style.display='flex';
 
   // Load stats
   const [usersSnap,chatsSnap,errSnap]=await Promise.all([
@@ -142,33 +178,60 @@ async function showDashboard(){
   document.getElementById('stat-chats').textContent=chats;
   document.getElementById('stat-errors').textContent=errors.length;
 
+  // Render Users List
+  const ul=document.getElementById('users-list');
+  ul.innerHTML='';
+  users.sort((a,b)=>a.name?.localeCompare(b.name||'')).forEach(u=>{
+    const div=document.createElement('div');
+    div.className='user-item';
+    div.innerHTML=`<div class="${u.online?'online':'offline'}-ind"></div>
+      <div class="av" style="width:36px;height:36px;border-radius:50%;background:${u.color||'#7c6eff'};font-size:12px;flex-shrink:0;">${u.initials||'?'}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name||'Unknown'}</div>
+        <div class="user-email">${u.email||''}</div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);text-align:right;">${u.online?'<span style="color:var(--green);">● Online</span>':'Offline'}<br>${u.createdAt?fmtDate(u.createdAt):''}</div>`;
+    ul.appendChild(div);
+  });
+
+  // Render Suggestions Management
+  const suggMgmt=document.getElementById('suggestions-mgmt');
+  suggMgmt.innerHTML='';
+  const allUsers=Object.entries(usersSnap.val()||{});
+  const suggsSnap=await get(ref(db,'suggestions'));
+  const suggestions=suggsSnap.val()||{};
+  
+  allUsers.sort((a,b)=>a[1].name?.localeCompare(b[1].name||'')).forEach(([uid,u])=>{
+    const isInSugg=suggestions[uid]===true;
+    const item=document.createElement('div');
+    item.className='user-item';
+    item.innerHTML=`<div class="${isInSugg?'online':'offline'}-ind"></div>
+      <div class="av" style="width:36px;height:36px;border-radius:50%;background:${u.color||'#7c6eff'};font-size:12px;flex-shrink:0;">${u.initials||'?'}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name||'Unknown'}</div>
+        <div class="user-email">${u.email||''}</div>
+      </div>
+      <label class="suggestion-toggle">
+        <input type="checkbox" ${isInSugg?'checked':''} onchange="toggleSuggestion('${uid}',this.checked)">
+        <span style="font-size:12px;color:var(--text2);">${isInSugg?'✓ Suggested':'Not Suggested'}</span>
+      </label>`;
+    suggMgmt.appendChild(item);
+  });
+
   // Errors
   const errList=document.getElementById('error-list');
   if(errors.length){
     errList.innerHTML='';
     errors.slice(-20).reverse().forEach(([id,e])=>{
-      const div=document.createElement('div');div.className='error-item';
+      const div=document.createElement('div');
+      div.className='error-item';
       div.innerHTML=`<div class="error-msg">⚠ ${e.error||'Unknown error'}</div>
         <div class="error-ctx">Context: ${e.context||'—'}</div>
         <div class="error-time">${e.ts?fmtDate(e.ts):'Unknown time'} · ${(e.ua||'').substring(0,60)}…</div>
-        <button onclick="clearErr('${id}')" style="margin-top:8px;background:none;border:1px solid rgba(255,83,112,.3);color:var(--red);border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Delete</button>`;
+        <button onclick="clearErr('${id}')" style="margin-top:8px;background:none;border:1px solid rgba(255,83,112,.3);color:var(--red);border-radius:8px;padding:4px 12px;font-size:12px;cursor:pointer;">Clear</button>`;
       errList.appendChild(div);
     });
   }
-
-  // Users
-  const ul=document.getElementById('users-list');
-  users.sort((a,b)=>a.name?.localeCompare(b.name||'')).forEach(u=>{
-    const div=document.createElement('div');div.className='user-item';
-    div.innerHTML=`<div class="${u.online?'online':'offline'}-ind"></div>
-      <div class="av" style="width:36px;height:36px;border-radius:50%;background:${u.color||'#7c6eff'};font-size:12px;flex-shrink:0;">${u.initials||'?'}</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;font-size:14px;">${u.name||'Unknown'}</div>
-        <div style="font-size:12px;color:var(--text2);">${u.email||''}</div>
-      </div>
-      <div style="font-size:11px;color:var(--text3);text-align:right;">${u.online?'<span style="color:var(--green);">● Online</span>':'Offline'}<br>${u.createdAt?fmtDate(u.createdAt):''}</div>`;
-    ul.appendChild(div);
-  });
 
   // Live refresh online count
   onValue(ref(db,'users'),snap=>{
@@ -176,6 +239,14 @@ async function showDashboard(){
     document.getElementById('stat-online').textContent=all.filter(u=>u.online).length;
   });
 }
+
+window.toggleSuggestion=async(uid,isEnabled)=>{
+  if(isEnabled){
+    await set(ref(db,`suggestions/${uid}`),true);
+  } else {
+    await remove(ref(db,`suggestions/${uid}`));
+  }
+};
 
 window.clearErr=async id=>{
   await remove(ref(db,`admin/errors/${id}`));
