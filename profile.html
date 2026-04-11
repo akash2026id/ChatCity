@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ChatCity — Profile</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+#root{display:flex;flex-direction:column;height:100dvh;}
+.content{flex:1;overflow-y:auto;padding-bottom:20px;}
+
+.profile-hero {
+  background:linear-gradient(160deg,var(--bg2),var(--bg3));
+  padding:32px 24px 24px;
+  display:flex;flex-direction:column;align-items:center;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+.avatar-wrap {
+  position:relative;cursor:pointer;margin-bottom:14px;
+}
+.profile-av {
+  width:90px;height:90px;border-radius:50%;
+  font-size:34px;font-weight:800;
+  border:3px solid var(--accent);
+  box-shadow:0 0 0 4px rgba(124,110,255,0.15);
+  overflow:hidden;
+}
+.profile-av img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+.av-edit {
+  position:absolute;bottom:0;right:0;
+  width:28px;height:28px;border-radius:50%;
+  background:var(--accent);border:2px solid var(--bg2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:#fff;
+}
+.p-name{font-size:22px;font-weight:800;font-family:var(--font2);margin-bottom:3px;}
+.p-email{font-size:13px;color:var(--text2);margin-bottom:4px;}
+.p-uid{font-size:11px;color:var(--text3);font-family:var(--font2);cursor:pointer;padding:4px 12px;background:var(--bg3);border-radius:20px;border:1px solid var(--border2);}
+.p-uid:hover{border-color:var(--accent);color:var(--accent);}
+
+.section {margin:0 16px 6px;}
+.section-card {
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r2);overflow:hidden;margin:0 16px 14px;
+}
+.option-row {
+  display:flex;align-items:center;gap:14px;
+  padding:15px 18px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .15s;
+}
+.option-row:last-child{border-bottom:none;}
+.option-row:active{background:var(--bg3);}
+.opt-icon{font-size:22px;width:30px;text-align:center;flex-shrink:0;}
+.opt-label{flex:1;font-size:15px;font-weight:600;}
+.opt-value{font-size:13px;color:var(--text3);max-width:150px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.opt-arrow{color:var(--text3);font-size:18px;margin-left:4px;}
+
+/* Edit modal content */
+.edit-field { margin-bottom:14px; }
+.edit-label { font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;display:block; }
+
+/* PIN input */
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:240px;margin:0 auto;}
+.pin-key{
+  padding:14px;border:1px solid var(--border2);border-radius:12px;
+  background:var(--bg3);color:var(--text);
+  font-size:20px;font-weight:700;font-family:var(--font2);
+  cursor:pointer;transition:all .2s;
+}
+.pin-key:active{background:var(--bg5);}
+.pin-dots{display:flex;gap:10px;justify-content:center;margin-bottom:20px;}
+.pin-dot{width:13px;height:13px;border-radius:50%;background:var(--border2);border:2px solid var(--border2);transition:all .2s;}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+<div id="root">
+  <div class="topbar">
+    <div class="topbar-title">Profile</div>
+    <div style="width:38px;"></div>
+  </div>
+
+  <div class="content">
+    <!-- HERO -->
+    <div class="profile-hero">
+      <div class="avatar-wrap" onclick="pickPhoto()">
+        <div class="av profile-av" id="p-av"></div>
+        <div class="av-edit">✏️</div>
+      </div>
+      <input type="file" id="photo-inp" accept="image/*" style="display:none" onchange="uploadPhoto(this)">
+      <div class="p-name" id="p-name">Loading…</div>
+      <div class="p-email" id="p-email"></div>
+      <div class="p-uid" id="p-uid" onclick="copyId()">Copy Chat ID</div>
+    </div>
+
+    <!-- ACCOUNT -->
+    <div class="sec-label">ACCOUNT</div>
+    <div class="section-card">
+      <div class="option-row" onclick="openEdit('name')">
+        <span class="opt-icon">✏️</span>
+        <span class="opt-label">Display Name</span>
+        <span class="opt-value" id="opt-name"></span>
+        <span class="opt-arrow">›</span>
+      </div>
+      <div class="option-row" onclick="openEdit('passcode')">
+        <span class="opt-icon">🔐</span>
+        <span class="opt-label">Change Passcode</span>
+        <span class="opt-value" id="opt-pin">●●●●</span>
+        <span class="opt-arrow">›</span>
+      </div>
+      <div class="option-row" onclick="openEdit('password')">
+        <span class="opt-icon">🔑</span>
+        <span class="opt-label">Change Password</span>
+        <span class="opt-value">Email password</span>
+        <span class="opt-arrow">›</span>
+      </div>
+    </div>
+
+    <!-- PRIVACY -->
+    <div class="sec-label">PRIVACY</div>
+    <div class="section-card">
+      <div class="option-row">
+        <span class="opt-icon">🔒</span>
+        <span class="opt-label">End-to-End Encryption</span>
+        <span class="opt-value" style="color:var(--green);">Active</span>
+      </div>
+      <div class="option-row" onclick="copyId()">
+        <span class="opt-icon">🆔</span>
+        <span class="opt-label">My Chat ID</span>
+        <span class="opt-value" id="uid-val" style="font-family:var(--font2);font-size:11px;"></span>
+        <span class="opt-arrow">›</span>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="sec-label">ABOUT</div>
+    <div class="section-card">
+      <div class="option-row">
+        <span class="opt-icon">💬</span>
+        <span class="opt-label">ChatCity</span>
+        <span class="opt-value">v2.0</span>
+      </div>
+      <div class="option-row">
+        <span class="opt-icon">💙</span>
+        <span class="opt-label">Developer</span>
+        <span class="opt-value">Abuhurira · 01966061084</span>
+      </div>
+    </div>
+
+    <!-- LOGOUT -->
+    <div style="margin:8px 16px 0;">
+      <button class="btn btn-danger" style="width:100%;" onclick="doLogout()">
+        🚪 &nbsp;Logout
+      </button>
+    </div>
+  </div>
+
+  <nav class="bnav">
+    <button class="nbtn" onclick="go('home.html')"><span class="ni">💬</span><span class="nl">Chats</span></button>
+    <button class="nbtn" onclick="go('contacts.html')"><span class="ni">👥</span><span class="nl">Contacts</span></button>
+    <button class="nbtn active" onclick="go('profile.html')"><span class="ni">👤</span><span class="nl">Profile</span></button>
+  </nav>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">Edit</div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script type="module">
+import {
+  auth, db,
+  ref, get, set,
+  onAuthStateChanged, signOut,
+  updateProfile, updatePassword,
+  EmailAuthProvider, reauthenticateWithCredential,
+  colorFor, initialsOf, toast, reportError,
+  getSession, clearSession, go
+} from './js/firebase.js';
+
+let me=null, userData=null;
+let editMode='';
+let pinBuf='', pinStep=0; // step 0=old, 1=new, 2=confirm
+
+window.go=go;
+
+onAuthStateChanged(auth,async user=>{
+  if(!user){go('index.html');return;}
+  const sess=getSession();
+  if(!sess||sess.uid!==user.uid){go('index.html');return;}
+  me=user;
+  const snap=await get(ref(db,`users/${me.uid}`));
+  userData=snap.val()||{};
+  renderProfile();
+});
+
+function renderProfile(){
+  const av=document.getElementById('p-av');
+  if(userData.photo){
+    av.innerHTML=`<img src="${userData.photo}" alt="">`;
+  } else {
+    av.textContent=userData.initials||initialsOf(userData.name||me.email||'?');
+    av.style.background=userData.color||colorFor(me.uid);
+  }
+  document.getElementById('p-name').textContent=userData.name||'User';
+  document.getElementById('p-email').textContent=me.email||'';
+  const uid=me.uid; const short=uid.slice(0,8)+'…'+uid.slice(-4);
+  document.getElementById('p-uid').textContent='🆔 '+short+' (tap to copy)';
+  document.getElementById('uid-val').textContent=short;
+  document.getElementById('opt-name').textContent=userData.name||'';
+  document.getElementById('opt-pin').textContent=userData.passcode?'●●●●':'Not set';
+}
+
+window.copyId=()=>{
+  navigator.clipboard.writeText(me.uid).then(()=>toast('Chat ID copied!','ok'));
+};
+
+window.pickPhoto=()=>document.getElementById('photo-inp').click();
+
+window.uploadPhoto=async el=>{
+  const file=el.files[0]; if(!file) return;
+  if(file.size>2*1024*1024){toast('Image too large (max 2MB)','error');return;}
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const base64=ev.target.result;
+    // Store as base64 in DB (no storage needed)
+    await set(ref(db,`users/${me.uid}/photo`),base64);
+    userData.photo=base64;
+    renderProfile();
+    toast('Profile photo updated!','ok');
+  };
+  reader.readAsDataURL(file);
+};
+
+// ── EDIT MODAL ──
+window.openEdit=(mode)=>{
+  editMode=mode;
+  const modal=document.getElementById('edit-modal');
+  const body=document.getElementById('modal-body');
+  pinBuf=''; pinStep=0;
+
+  if(mode==='name'){
+    document.getElementById('modal-title').textContent='Change Name';
+    body.innerHTML=`
+      <div class="edit-field">
+        <label class="edit-label">New Display Name</label>
+        <input class="inp" type="text" id="edit-name" value="${userData.name||''}" placeholder="Your name" maxlength="40">
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="saveName()">Save Name</button>`;
+    setTimeout(()=>document.getElementById('edit-name')?.focus(),300);
+  }
+  else if(mode==='passcode'){
+    document.getElementById('modal-title').textContent=userData.passcode?'Change Passcode':'Set Passcode';
+    renderPinStep();
+  }
+  else if(mode==='password'){
+    document.getElementById('modal-title').textContent='Change Password';
+    body.innerHTML=`
+      <div class="edit-field">
+        <label class="edit-label">Current Password</label>
+        <input class="inp" type="password" id="cur-pw" placeholder="••••••••">
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">New Password</label>
+        <input class="inp" type="password" id="new-pw" placeholder="Min 6 characters">
+      </div>
+      <div class="edit-field">
+        <label class="edit-label">Confirm New Password</label>
+        <input class="inp" type="password" id="cnf-pw" placeholder="Repeat new password">
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="savePassword()">Change Password</button>
+      <div id="pw-err" style="color:var(--red);font-size:12px;text-align:center;margin-top:8px;"></div>`;
+  }
+
+  modal.classList.add('show');
+};
+
+function renderPinStep(){
+  const body=document.getElementById('modal-body');
+  const steps=userData.passcode?['Old Passcode','New Passcode (4 digits)','Confirm New Passcode']:['New Passcode (4 digits)','Confirm Passcode'];
+  const stepNames=userData.passcode?steps:[...steps];
+  const curStep=userData.passcode?pinStep:pinStep+1;
+  const label=userData.passcode?steps[pinStep]:steps[pinStep];
+  pinBuf='';
+
+  body.innerHTML=`
+    <div style="text-align:center;color:var(--text2);font-size:13px;margin-bottom:16px;">${label}</div>
+    <div class="pin-dots" id="pin-dots">
+      ${[0,1,2,3].map(i=>`<div class="pin-dot" id="pd-${i}"></div>`).join('')}
+    </div>
+    <div class="pin-grid">
+      ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>`
+        <button class="pin-key" onclick="pinKey('${k}')" ${k===''?'style="visibility:hidden"':''}>${k}</button>
+      `).join('')}
+    </div>
+    <div id="pin-err" style="color:var(--red);font-size:12px;text-align:center;margin-top:12px;"></div>`;
+}
+
+let pin0='',pin1='',pin2='';
+window.pinKey=k=>{
+  if(k==='⌫'){ pinBuf=pinBuf.slice(0,-1); }
+  else if(k!==''&&pinBuf.length<4){ pinBuf+=String(k); }
+  // Update dots
+  for(let i=0;i<4;i++){
+    const d=document.getElementById('pd-'+i);
+    if(d){ d.style.background=i<pinBuf.length?'var(--accent)':'var(--border2)'; d.style.borderColor=i<pinBuf.length?'var(--accent)':'var(--border2)'; }
+  }
+  if(pinBuf.length===4) setTimeout(processPin,120);
+};
+
+async function processPin(){
+  const errEl=document.getElementById('pin-err');
+  if(userData.passcode){
+    // 3-step: old → new → confirm
+    if(pinStep===0){
+      if(pinBuf!==String(userData.passcode)){ errEl.textContent='Wrong passcode'; shakeDots(); return; }
+      pin0=pinBuf; pinStep=1; renderPinStep();
+    } else if(pinStep===1){
+      if(!/^\d{4}$/.test(pinBuf)){ errEl.textContent='Must be 4 digits'; return; }
+      pin1=pinBuf; pinStep=2; renderPinStep();
+    } else {
+      if(pinBuf!==pin1){ errEl.textContent='Passcodes do not match'; shakeDots(); return; }
+      await set(ref(db,`users/${me.uid}/passcode`),pin1);
+      userData.passcode=pin1;
+      closeModal(); renderProfile(); toast('Passcode updated!','ok');
+    }
+  } else {
+    // 2-step: new → confirm
+    if(pinStep===0){
+      pin1=pinBuf; pinStep=1; renderPinStep();
+    } else {
+      if(pinBuf!==pin1){ errEl.textContent='Passcodes do not match'; shakeDots(); return; }
+      await set(ref(db,`users/${me.uid}/passcode`),pin1);
+      userData.passcode=pin1;
+      closeModal(); renderProfile(); toast('Passcode set!','ok');
+    }
+  }
+}
+function shakeDots(){
+  for(let i=0;i<4;i++){const d=document.getElementById('pd-'+i);if(d)d.style.background='var(--red)';}
+  setTimeout(()=>{ pinBuf=''; for(let i=0;i<4;i++){const d=document.getElementById('pd-'+i);if(d){d.style.background='var(--border2)';d.style.borderColor='var(--border2)';}} },600);
+}
+
+window.saveName=async()=>{
+  const name=document.getElementById('edit-name')?.value.trim();
+  if(!name){toast('Name cannot be empty','error');return;}
+  await updateProfile(me,{displayName:name});
+  await set(ref(db,`users/${me.uid}/name`),name);
+  await set(ref(db,`users/${me.uid}/initials`),initialsOf(name));
+  userData.name=name; userData.initials=initialsOf(name);
+  closeModal(); renderProfile(); toast('Name updated!','ok');
+};
+
+window.savePassword=async()=>{
+  const cur=document.getElementById('cur-pw')?.value;
+  const nw=document.getElementById('new-pw')?.value;
+  const cn=document.getElementById('cnf-pw')?.value;
+  const err=document.getElementById('pw-err');
+  if(!cur||!nw||!cn){err.textContent='Fill all fields';return;}
+  if(nw.length<6){err.textContent='Min 6 characters';return;}
+  if(nw!==cn){err.textContent='Passwords do not match';return;}
+  try{
+    const cred=EmailAuthProvider.credential(me.email,cur);
+    await reauthenticateWithCredential(me,cred);
+    await updatePassword(me,nw);
+    closeModal(); toast('Password changed!','ok');
+  } catch(e){
+    err.textContent=e.code==='auth/wrong-password'?'Current password is wrong':e.message;
+  }
+};
+
+window.closeModal=()=>{ document.getElementById('edit-modal').classList.remove('show'); pinBuf=''; pinStep=0; };
+// Close on overlay tap
+document.getElementById('edit-modal').addEventListener('click',e=>{ if(e.target===e.currentTarget)window.closeModal(); });
+
+window.doLogout=async()=>{
+  await set(ref(db,`users/${me.uid}/online`),false);
+  clearSession();
+  await signOut(auth);
+  go('index.html');
+};
+</script>
+</body>
+</html>
