@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ChatCity — Admin Panel</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="style.css">
 <style>
 body { display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto; }
 #admin-root { display:none;flex-direction:column;height:100dvh; }
@@ -87,7 +87,7 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
 </div>
 
 <script type="module">
-import { db, ref, get, onValue, remove } from './js/firebase.js';
+import { db, ref, get, onValue, remove } from './firebase.js';
 
 const ADMIN_EMAIL  = 'admin@chatcity.com';
 const ADMIN_PASS   = '9999';
