@@ -5,168 +5,199 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ChatCity — Contacts</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 #root { display:flex;flex-direction:column;height:100dvh; }
 .content { flex:1;overflow-y:auto; }
-.search-section { padding:12px 16px; background:var(--bg2); border-bottom:1px solid var(--border); position:sticky;top:0;z-index:5; }
-.search-box {
-  display:flex;align-items:center;gap:10px;
-  background:var(--bg3); border:1.5px solid var(--border2);
-  border-radius:30px; padding:10px 16px;
-}
-.search-box input {
-  flex:1;background:none;border:none;outline:none;
-  color:var(--text);font-size:14px;font-family:var(--font);
-}
+.search-sec { padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5; }
+.search-box { display:flex;align-items:center;gap:10px;background:var(--bg3);border:1.5px solid var(--border2);border-radius:30px;padding:10px 16px;transition:border-color .2s; }
+.search-box:focus-within { border-color:var(--accent); }
+.search-box input { flex:1;background:none;border:none;outline:none;color:var(--text);font-size:14px;font-family:var(--font); }
 .search-box input::placeholder { color:var(--text3); }
-.search-loading { font-size:12px;color:var(--text3);display:none; }
-
-.contact-item {
-  display:flex;align-items:center;gap:12px;
-  padding:13px 18px; border-bottom:1px solid var(--border);
-  cursor:pointer; transition:background .15s;
-}
+.contact-item { display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s; }
 .contact-item:active { background:var(--bg3); }
 .c-av { width:48px;height:48px;border-radius:50%;font-size:16px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800; }
-.c-av img { width:100%;height:100%;object-fit:cover; }
+.c-av img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
 .c-info { flex:1;min-width:0; }
-.c-name { font-size:15px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-.c-email { font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-.chat-btn {
-  background:rgba(45,212,160,0.12);
-  border:1px solid rgba(45,212,160,0.25);
-  color:var(--green); border-radius:10px;
-  padding:7px 16px; font-size:12px;font-weight:700;
-  cursor:pointer;font-family:var(--font);
-  transition:all .2s;flex-shrink:0;
-}
+.c-name { font-size:15px;font-weight:700;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.c-sub { font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.chat-btn { background:rgba(45,212,160,0.12);border:1px solid rgba(45,212,160,0.25);color:var(--green);border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;flex-shrink:0;white-space:nowrap; }
 .chat-btn:hover { background:var(--green);color:#000; }
-.empty { text-align:center;padding:60px 24px;color:var(--text3); }
-.empty-icon { font-size:48px;margin-bottom:12px;opacity:.5; }
-.results-label { font-size:11px;font-weight:800;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;padding:14px 18px 8px; }
-.section-label { font-size:11px;font-weight:800;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;padding:14px 18px 8px;margin-top:10px; }
-.no-results { text-align:center;padding:40px 24px;color:var(--text3);font-size:13px; }
+.sec-lbl { font-size:11px;font-weight:800;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;padding:14px 18px 8px; }
+.empty-sec { text-align:center;padding:32px 24px;color:var(--text3);font-size:13px; }
+.no-results { text-align:center;padding:32px 24px;color:var(--text3);font-size:13px; }
+
+/* Friend code section */
+.code-card { margin:14px 16px;background:rgba(124,110,255,0.1);border:1px solid rgba(124,110,255,0.25);border-radius:var(--r2);padding:16px; }
+.code-badge { font-size:22px;font-weight:800;font-family:var(--font2);color:var(--accent);letter-spacing:4px;margin:8px 0; }
+.code-search-inp { flex:1;background:none;border:none;outline:none;color:var(--text);font-size:15px;font-family:var(--font2);letter-spacing:3px;font-weight:700; }
 </style>
 </head>
 <body>
 <div id="toast"></div>
 <div id="root">
   <div class="topbar">
-    <button class="back-btn btn" style="background:none;border:none;color:var(--text2);font-size:26px;cursor:pointer;padding:4px;" onclick="go('home.html')">←</button>
+    <button class="back-btn btn" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;width:40px;height:40px;border-radius:50%;" onclick="go('home.html')"><i class="fas fa-arrow-left"></i></button>
     <div class="topbar-title">Contacts</div>
     <div style="width:38px;"></div>
   </div>
 
   <div class="content">
-    <div class="search-section">
+    <!-- Search -->
+    <div class="search-sec">
       <div class="search-box">
-        <span style="font-size:18px;color:var(--text3);">🔍</span>
+        <i class="fas fa-search" style="color:var(--text3);"></i>
         <input type="text" id="search" placeholder="Search name or email…" oninput="doSearch()">
-        <span class="search-loading" id="search-loading">⏳</span>
-        <button onclick="clearSearch()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;" id="clear-btn" class="hidden">✕</button>
+        <span id="search-loading" style="color:var(--text3);font-size:12px;display:none;"><i class="fas fa-spinner fa-spin"></i></span>
+        <button onclick="clearSearch()" id="clear-btn" class="hidden" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;"><i class="fas fa-times"></i></button>
       </div>
     </div>
 
     <!-- Search results -->
     <div id="search-results" class="hidden">
-      <div class="results-label">SEARCH RESULTS</div>
+      <div class="sec-lbl"><i class="fas fa-search"></i> SEARCH RESULTS</div>
       <div id="results-list"></div>
     </div>
 
-    <!-- Suggested Users -->
-    <div id="suggestions-section">
-      <div class="section-label">💡 SUGGESTED USERS</div>
-      <div id="suggestions-list"></div>
-      <div id="no-suggestions" class="empty hidden">
-        <div class="empty-icon">👥</div>
-        <div>No suggestions available yet</div>
+    <!-- Friend Code section -->
+    <div id="default-content">
+      <div class="code-card">
+        <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px;"><i class="fas fa-hashtag"></i> My Friend Code</div>
+        <div class="code-badge" id="my-code">———————</div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">Share this 7-digit code to add friends</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary" style="flex:1;padding:10px;" onclick="copyMyCode()"><i class="fas fa-copy"></i> Copy Code</button>
+          <button class="btn btn-ghost" style="flex:1;padding:10px;" onclick="showAddByCode()"><i class="fas fa-user-plus"></i> Add by Code</button>
+        </div>
       </div>
-    </div>
 
-    <!-- My contacts -->
-    <div id="contacts-section">
-      <div class="section-label">MY CONTACTS</div>
-      <div id="contacts-list"></div>
-      <div id="no-contacts" class="empty hidden">
-        <div class="empty-icon">👥</div>
-        <div>No contacts yet</div>
+      <!-- Suggestions -->
+      <div id="suggestions-section">
+        <div class="sec-lbl"><i class="fas fa-lightbulb"></i> SUGGESTED USERS</div>
+        <div id="suggestions-list"></div>
+        <div id="no-suggestions" class="empty-sec hidden"><i class="fas fa-users" style="font-size:32px;opacity:.3;display:block;margin-bottom:8px;"></i> No suggestions yet</div>
+      </div>
+
+      <!-- My contacts -->
+      <div id="contacts-section">
+        <div class="sec-lbl"><i class="fas fa-address-book"></i> MY CONTACTS</div>
+        <div id="contacts-list"></div>
+        <div id="no-contacts" class="empty-sec hidden"><i class="fas fa-users" style="font-size:32px;opacity:.3;display:block;margin-bottom:8px;"></i> No contacts yet.<br>Search to find people.</div>
       </div>
     </div>
   </div>
 
   <nav class="bnav">
-    <button class="nbtn" onclick="go('home.html')"><span class="ni">💬</span><span class="nl">Chats</span></button>
-    <button class="nbtn active" onclick="go('contacts.html')"><span class="ni">👥</span><span class="nl">Contacts</span></button>
-    <button class="nbtn" onclick="go('profile.html')"><span class="ni">👤</span><span class="nl">Profile</span></button>
+    <button class="nbtn" onclick="go('home.html')"><span class="ni"><i class="fas fa-comment-dots"></i></span><span class="nl">Chats</span></button>
+    <button class="nbtn active" onclick="go('contacts.html')"><span class="ni"><i class="fas fa-users"></i></span><span class="nl">Contacts</span></button>
+    <button class="nbtn" onclick="go('profile.html')"><span class="ni"><i class="fas fa-user"></i></span><span class="nl">Profile</span></button>
   </nav>
+</div>
+
+<!-- Add by code modal -->
+<div class="modal-overlay" id="add-code-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i class="fas fa-user-plus" style="color:var(--accent);"></i> Add Friend by Code</div>
+    <div style="margin-bottom:16px;color:var(--text2);font-size:13px;text-align:center;">Enter your friend's 7-digit code</div>
+    <div class="search-box" style="margin-bottom:16px;">
+      <i class="fas fa-hashtag" style="color:var(--accent);"></i>
+      <input class="code-search-inp" type="text" id="code-inp" maxlength="7" placeholder="XXXXXXX" oninput="this.value=this.value.toUpperCase()">
+    </div>
+    <button class="btn btn-primary" style="width:100%;" id="add-code-btn" onclick="addByCode()"><i class="fas fa-user-plus"></i> Add Friend</button>
+    <div id="code-err" class="errmsg" style="margin-top:10px;text-align:center;"></div>
+  </div>
 </div>
 
 <script type="module">
 import {
-  auth, db,
-  ref, get, set, onValue, off,
+  auth, db, ref, get, set, onValue,
   onAuthStateChanged,
   colorFor, initialsOf,
   getSession, setOnline, toast, go,
-  searchUsers,
-  getAllUsers
+  searchUsers, generateUserCode, addFriendByCode
 } from './firebase.js';
 
-let me=null, myContacts={}, suggestions={};
-let suggestionsListener=null;
+let me=null, myContacts={};
 window.go=go;
 
 onAuthStateChanged(auth, async user=>{
-  if(!user){go('index.html');return;}
+  if(!user){ go('index.html'); return; }
   const sess=getSession();
-  if(!sess||sess.uid!==user.uid){go('index.html');return;}
+  if(!sess||sess.uid!==user.uid){ go('index.html'); return; }
   me=user;
   await setOnline(me.uid);
+  loadMyCode();
   loadContacts();
-  listenSuggestions();
+  loadSuggestions();
 });
 
-function loadContacts(){
-  onValue(ref(db,`users/${me.uid}/contacts`),async snap=>{
+async function loadMyCode() {
+  const code=generateUserCode(me.uid);
+  document.getElementById('my-code').textContent=code;
+}
+
+window.copyMyCode = () => {
+  const code=document.getElementById('my-code').textContent;
+  navigator.clipboard.writeText(code).then(()=>toast('Friend code copied! 📋','ok'));
+};
+
+window.showAddByCode = () => {
+  document.getElementById('add-code-modal').classList.add('show');
+  document.getElementById('code-inp').value='';
+  document.getElementById('code-err').textContent='';
+};
+
+document.getElementById('add-code-modal').addEventListener('click',e=>{
+  if(e.target.id==='add-code-modal') e.target.classList.remove('show');
+});
+
+window.addByCode = async () => {
+  const code=document.getElementById('code-inp').value.trim().toUpperCase();
+  const errEl=document.getElementById('code-err');
+  const btn=document.getElementById('add-code-btn');
+  if(code.length!==7){ errEl.textContent='Please enter a 7-digit code'; return; }
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Adding…'; btn.disabled=true;
+  try {
+    const result=await addFriendByCode(me.uid,code);
+    toast(`${result.user.name} added! 🎉`,'ok');
+    document.getElementById('add-code-modal').classList.remove('show');
+  } catch(e) {
+    errEl.textContent='❌ '+e.message;
+  } finally {
+    btn.innerHTML='<i class="fas fa-user-plus"></i> Add Friend'; btn.disabled=false;
+  }
+};
+
+function loadContacts() {
+  onValue(ref(db,`users/${me.uid}/contacts`), async snap=>{
     myContacts=snap.val()||{};
     const list=document.getElementById('contacts-list');
     list.innerHTML='';
     const ids=Object.keys(myContacts);
     if(!ids.length){ document.getElementById('no-contacts').classList.remove('hidden'); return; }
     document.getElementById('no-contacts').classList.add('hidden');
-    for(const uid of ids){
+    for(const uid of ids) {
       const u=(await get(ref(db,`users/${uid}`))).val();
-      if(!u)continue;
+      if(!u) continue;
       list.appendChild(buildContactItem(u));
     }
   });
 }
 
-function listenSuggestions(){
-  if(suggestionsListener) off(suggestionsListener);
-  suggestionsListener = ref(db,'suggestions');
-  onValue(suggestionsListener, async snap=>{
-    const suggestedUIDs=snap.val()||{};
-    suggestions=suggestedUIDs;
-    
+function loadSuggestions() {
+  onValue(ref(db,'users'), async snap=>{
+    const all=snap.val()||{};
     const list=document.getElementById('suggestions-list');
     list.innerHTML='';
-    const ids=Object.keys(suggestedUIDs).filter(uid=>uid!==me.uid&&suggestedUIDs[uid]===true);
-    
-    if(!ids.length){ 
-      document.getElementById('no-suggestions').classList.remove('hidden'); 
-      return; 
-    }
+    const ids=Object.keys(all).filter(uid=>uid!==me.uid&&!myContacts[uid]);
+    const limited=ids.slice(0,10);
+    if(!limited.length){ document.getElementById('no-suggestions').classList.remove('hidden'); return; }
     document.getElementById('no-suggestions').classList.add('hidden');
-    
-    for(const uid of ids){
-      try {
-        const u=(await get(ref(db,`users/${uid}`))).val();
-        if(!u)continue;
-        list.appendChild(buildSuggestionItem(u));
-      } catch(e) {
-        console.error('Load suggestion error:', e);
-      }
+    for(const uid of limited) {
+      const u=all[uid]; if(!u) continue;
+      u.uid=uid;
+      list.appendChild(buildSuggestionItem(u));
     }
   });
 }
@@ -174,26 +205,25 @@ function listenSuggestions(){
 function buildContactItem(u) {
   const item=document.createElement('div');
   item.className='contact-item';
-  const avHtml=u.photo?`<img src="${u.photo}">`:`<div style="background:${u.color||colorFor(u.uid)};width:48px;height:48px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;font-weight:800;">${u.initials||initialsOf(u.name||'?')}</div>`;
-  
-  item.onclick=()=>{
-    sessionStorage.setItem('cc_chat_target',JSON.stringify({uid:u.uid,name:u.name,initials:u.initials||initialsOf(u.name||'?'),color:u.color||colorFor(u.uid),photo:u.photo||''}));
-    go('chat.html');
-  };
+  const avHtml=u.photo
+    ? `<img src="${u.photo}" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">`
+    : `<div style="background:${u.color||colorFor(u.uid)};width:48px;height:48px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;">${u.initials||initialsOf(u.name||'?')}</div>`;
+  item.onclick=()=>startChat(u.uid,u.name,u.initials||initialsOf(u.name||'?'),u.color||colorFor(u.uid),u.photo||'');
   item.innerHTML=`<div class="c-av">${avHtml}</div>
-    <div class="c-info"><div class="c-name">${u.name||'User'}</div><div class="c-email">${u.email||''}</div></div>
-    <span style="color:var(--accent);font-size:20px;">›</span>`;
+    <div class="c-info"><div class="c-name">${u.name||'User'}</div><div class="c-sub"><i class="fas fa-envelope" style="font-size:10px;"></i> ${u.email||''}</div></div>
+    <i class="fas fa-chevron-right" style="color:var(--accent);font-size:16px;"></i>`;
   return item;
 }
 
 function buildSuggestionItem(u) {
   const item=document.createElement('div');
   item.className='contact-item';
-  const avHtml=u.photo?`<img src="${u.photo}">`:`<div style="background:${u.color||colorFor(u.uid)};width:48px;height:48px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;font-weight:800;">${u.initials||initialsOf(u.name||'?')}</div>`;
-  
+  const avHtml=u.photo
+    ? `<img src="${u.photo}" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">`
+    : `<div style="background:${u.color||colorFor(u.uid)};width:48px;height:48px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;">${u.initials||initialsOf(u.name||'?')}</div>`;
   item.innerHTML=`<div class="c-av">${avHtml}</div>
-    <div class="c-info"><div class="c-name">${u.name||'User'}</div><div class="c-email">${u.email||''}</div></div>
-    <button class="chat-btn" onclick="startChat('${u.uid}','${u.name}','${u.initials||initialsOf(u.name||'?')}','${u.color||colorFor(u.uid)}','${u.photo||''}');event.stopPropagation();">💬 Chat</button>`;
+    <div class="c-info"><div class="c-name">${u.name||'User'}</div><div class="c-sub">${u.email||''}</div></div>
+    <button class="chat-btn" onclick="startChat('${u.uid}','${u.name}','${u.initials||initialsOf(u.name||'?')}','${u.color||colorFor(u.uid)}','${u.photo||''}');event.stopPropagation();"><i class="fas fa-comment"></i> Chat</button>`;
   return item;
 }
 
@@ -207,52 +237,40 @@ window.doSearch=async()=>{
   const q=document.getElementById('search').value.trim();
   const loading=document.getElementById('search-loading');
   const clearBtn=document.getElementById('clear-btn');
-  
   clearBtn.classList.toggle('hidden',!q);
-  
-  if(!q){ 
-    document.getElementById('search-results').classList.add('hidden'); 
-    return; 
-  }
-  if(q.length<1) return;
-  
+  if(!q){ document.getElementById('search-results').classList.add('hidden'); document.getElementById('default-content').style.display=''; return; }
   clearTimeout(searchTimer);
   loading.style.display='inline';
-  
+  document.getElementById('default-content').style.display='none';
   searchTimer=setTimeout(async()=>{
     try {
-      const results = await searchUsers(q, me.uid);
+      const results=await searchUsers(q, me.uid);
       const list=document.getElementById('results-list');
       list.innerHTML='';
       document.getElementById('search-results').classList.remove('hidden');
-      
-      if(!results.length){
-        list.innerHTML='<div class="no-results">No users found</div>';
-      } else {
-        results.forEach(u=>list.appendChild(buildSearchResult(u)));
-      }
-    } catch(e) {
-      console.error('Search error:', e);
-    } finally {
-      loading.style.display='none';
-    }
-  }, 300);
+      if(!results.length) { list.innerHTML=`<div class="no-results"><i class="fas fa-search" style="font-size:32px;opacity:.3;display:block;margin-bottom:8px;"></i> No users found for "${q}"</div>`; }
+      else results.forEach(u=>list.appendChild(buildSearchResult(u)));
+    } catch(e) { toast('Search error: '+e.message,'error'); }
+    finally { loading.style.display='none'; }
+  }, 350);
 };
 
 window.clearSearch=()=>{
   document.getElementById('search').value='';
   document.getElementById('search-results').classList.add('hidden');
   document.getElementById('clear-btn').classList.add('hidden');
+  document.getElementById('default-content').style.display='';
 };
 
 function buildSearchResult(u) {
   const item=document.createElement('div');
   item.className='contact-item';
-  const avHtml=u.photo?`<img src="${u.photo}">`:`<div style="background:${u.color||colorFor(u.uid)};width:48px;height:48px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;font-weight:800;">${u.initials||initialsOf(u.name||'?')}</div>`;
-  
+  const avHtml=u.photo
+    ? `<img src="${u.photo}" alt="" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">`
+    : `<div style="background:${u.color||colorFor(u.uid)};width:48px;height:48px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;">${u.initials||initialsOf(u.name||'?')}</div>`;
   item.innerHTML=`<div class="c-av">${avHtml}</div>
-    <div class="c-info"><div class="c-name">${u.name||'User'}</div><div class="c-email">${u.email||''}</div></div>
-    <button class="chat-btn" onclick="startChat('${u.uid}','${u.name}','${u.initials||initialsOf(u.name||'?')}','${u.color||colorFor(u.uid)}','${u.photo||''}');event.stopPropagation();">💬 Chat</button>`;
+    <div class="c-info"><div class="c-name">${u.name||'User'}</div><div class="c-sub">${u.email||''}</div></div>
+    <button class="chat-btn" onclick="startChat('${u.uid}','${u.name}','${u.initials||initialsOf(u.name||'?')}','${u.color||colorFor(u.uid)}','${u.photo||''}');event.stopPropagation();"><i class="fas fa-comment"></i> Chat</button>`;
   return item;
 }
 </script>
