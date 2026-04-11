@@ -303,6 +303,123 @@ const sendMessageOfflineAware = async (chatId, uid, payload) => {
   }
 };
 
+
+// Add these functions before export
+
+// ── UNIQUE USER CODE SYSTEM ──
+/**
+ * Generate unique 7-character code for user
+ * Format: XXXXXX9 (6 chars + 1 check digit)
+ */
+const generateUserCode = (uid) => {
+  let hash = 0;
+  for (let i = 0; i < uid.length; i++) {
+    const char = uid.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  let num = Math.abs(hash);
+  
+  for (let i = 0; i < 6; i++) {
+    code += chars[num % chars.length];
+    num = Math.floor(num / chars.length);
+  }
+  
+  // Add check digit
+  let checkSum = 0;
+  for (let i = 0; i < code.length; i++) {
+    checkSum += code.charCodeAt(i);
+  }
+  const checkDigit = (checkSum % 10);
+  
+  return code + checkDigit;
+};
+
+/**
+ * Find user by unique code
+ */
+const findUserByCode = async (code) => {
+  try {
+    if (!code || code.length !== 7) return null;
+    
+    const snap = await get(ref(db, 'search/users'));
+    const users = snap.val() || {};
+    
+    for (const [uid, user] of Object.entries(users)) {
+      if (user.code === code.toUpperCase()) {
+        return { uid, ...user };
+      }
+    }
+    
+    return null;
+  } catch(e) {
+    console.error('Find user by code error:', e);
+    return null;
+  }
+};
+
+/**
+ * Add friend using code
+ */
+const addFriendByCode = async (myUid, code) => {
+  try {
+    const user = await findUserByCode(code);
+    if (!user) throw new Error('User code not found');
+    if (user.uid === myUid) throw new Error('Cannot add yourself');
+    
+    const theirUid = user.uid;
+    
+    // Add to my contacts
+    await set(ref(db, `users/${myUid}/contacts/${theirUid}`), true);
+    
+    // Add to their contacts
+    await set(ref(db, `users/${theirUid}/contacts/${myUid}`), true);
+    
+    return { success: true, user };
+  } catch(e) {
+    console.error('Add friend error:', e);
+    throw e;
+  }
+};
+
+// Update createUserSearchIndex to include code
+const createUserSearchIndex = async (uid, user) => {
+  try {
+    const code = generateUserCode(uid);
+    const nameIndex = (user.name || '').toLowerCase().trim();
+    const emailIndex = (user.email || '').toLowerCase().trim();
+    const nameTokens = nameIndex.split(/\s+/).filter(t => t.length > 0);
+    const emailTokens = emailIndex.split('@')[0].split(/[\._\-]+/).filter(t => t.length > 0);
+    const allTokens = [...new Set([...nameTokens, ...emailTokens, nameIndex, emailIndex])];
+    
+    await set(ref(db, `search/users/${uid}`), {
+      uid,
+      code,
+      name: user.name || '',
+      email: user.email || '',
+      nameIndex,
+      emailIndex,
+      tokens: allTokens,
+      color: user.color,
+      initials: user.initials,
+      photo: user.photo,
+      createdAt: Date.now()
+    });
+  } catch(e) {
+    console.error('Search index error:', e);
+  }
+};
+
+// Export new functions
+export {
+  // ... existing exports ...
+  generateUserCode,
+  findUserByCode,
+  addFriendByCode
+};
 // ── Export ──
 export {
   app, auth, db, gProvider,
