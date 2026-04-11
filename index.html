@@ -221,7 +221,7 @@ body { display:flex; align-items:center; justify-content:center; padding:20px; o
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:260px;margin:0 auto;">
       ${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>`
-        <button onclick="pinKey('${k}')" style="padding:16px;border:1px solid var(--border2);border-radius:14px;background:var(--bg3);color:var(--text);font-size:20px;font-weight:700;font-family:var(--font2);cursor:pointer;transition:all .2s;${k===''?'visibility:hidden':''}" onmousedown="this.style.background='var(--bg5)'" onmouseup="this.style.background='var(--bg3)'">${k}</button>
+        <button onclick="pinKey('${k}')" style="padding:16px;border:1px solid var(--border2);border-radius:14px;background:var(--bg3);color:var(--text);font-size:20px;font-weight:700;font-family:var(--font2);">${k}</button>
       `).join('')}
     </div>
     <div class="errmsg" id="pin-err" style="margin-top:14px;"></div>
@@ -237,7 +237,8 @@ import {
   colorFor, initialsOf,
   toast, reportError,
   saveSession, getSession,
-  go
+  go,
+  createUserSearchIndex
 } from './firebase.js';
 
 let pendingUser = null;
@@ -266,7 +267,7 @@ async function afterAuth(user) {
   if(!snap.exists()) {
     // New Google user — create profile, no passcode (they can set later)
     const name = user.displayName || 'User';
-    await set(ref(db, `users/${user.uid}`), {
+    const userData = {
       uid:      user.uid,
       name,
       email:    user.email,
@@ -276,7 +277,12 @@ async function afterAuth(user) {
       passcode: '',
       online:   false,
       createdAt: Date.now()
-    });
+    };
+    await set(ref(db, `users/${user.uid}`), userData);
+    
+    // ✅ CREATE SEARCH INDEX
+    await createUserSearchIndex(user.uid, userData);
+    
     saveSession(user.uid, '');
     go('home.html');
     return;
@@ -372,7 +378,8 @@ window.doSignup = async () => {
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, { displayName: name });
-    await set(ref(db, `users/${cred.user.uid}`), {
+    
+    const userData = {
       uid:      cred.user.uid,
       name,
       email,
@@ -382,7 +389,13 @@ window.doSignup = async () => {
       passcode: pin || '',
       online:   false,
       createdAt: Date.now()
-    });
+    };
+    
+    await set(ref(db, `users/${cred.user.uid}`), userData);
+    
+    // ✅ CREATE SEARCH INDEX IMMEDIATELY AFTER SIGNUP
+    await createUserSearchIndex(cred.user.uid, userData);
+    
     saveSession(cred.user.uid, pin||'');
     go('home.html');
   } catch(e) {
