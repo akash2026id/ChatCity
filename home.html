@@ -5,85 +5,28 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ChatCity — Chats</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 #root { display:flex; flex-direction:column; height:100dvh; }
 .page-content { flex:1; overflow-y:auto; padding-bottom:8px; }
-
-/* Chat items */
-.chat-item {
-  display: flex; align-items: center; gap: 13px;
-  padding: 13px 18px;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer; transition: background .15s;
-  position: relative;
-}
-.chat-item:active { background: var(--bg3); }
-.chat-av-wrap { position: relative; flex-shrink: 0; }
-.chat-av { width: 52px; height: 52px; border-radius: 50%; font-size: 18px; }
-.chat-body { flex: 1; min-width: 0; }
-.chat-name {
-  font-weight: 700; font-size: 15px;
-  margin-bottom: 3px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.chat-preview {
-  font-size: 13px; color: var(--text2);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.chat-meta {
-  display: flex; flex-direction: column;
-  align-items: flex-end; gap: 5px;
-  flex-shrink: 0;
-}
-.chat-time { font-size: 11px; color: var(--text3); }
-.chat-badge {
-  background: var(--accent);
-  color: #fff; font-size: 10px; font-weight: 800;
-  border-radius: 10px; padding: 2px 7px; min-width: 18px; text-align: center;
-}
-.chat-muted .chat-name { color: var(--text2); }
-
-/* Empty */
-.empty {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 80px 24px; text-align: center;
-  color: var(--text3);
-}
-.empty-emoji { font-size: 60px; margin-bottom: 16px; opacity: .5; }
-.empty h3 { font-size: 18px; font-weight: 700; color: var(--text2); margin-bottom: 8px; }
-.empty p { font-size: 13px; line-height: 1.6; }
-
-/* FAB */
-.fab {
-  position: fixed; bottom: calc(70px + var(--safe-b)); right: 20px;
-  width: 56px; height: 56px; border-radius: 50%;
-  background: linear-gradient(135deg,var(--accent),#9d8fff);
-  border: none; color: #fff; font-size: 28px;
-  cursor: pointer; z-index: 10;
-  box-shadow: 0 6px 28px var(--glow);
-  display: flex; align-items: center; justify-content: center;
-  transition: all .2s;
-}
-.fab:hover { transform: scale(1.08) rotate(10deg); }
-
-/* Search bar */
-.search-wrap {
-  padding: 10px 16px;
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 5;
-}
-.search-inp {
-  width: 100%; padding: 10px 16px;
-  background: var(--bg3);
-  border: 1.5px solid var(--border2);
-  border-radius: 30px;
-  color: var(--text); font-family: var(--font); font-size: 14px;
-  outline: none;
-}
-.search-inp:focus { border-color: var(--accent); }
-.search-inp::placeholder { color: var(--text3); }
+.chat-item { display:flex;align-items:center;gap:13px;padding:13px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;position:relative; }
+.chat-item:active { background:var(--bg3); }
+.chat-av-wrap { position:relative;flex-shrink:0; }
+.chat-av { width:52px;height:52px;border-radius:50%;font-size:18px; }
+.chat-body { flex:1;min-width:0; }
+.chat-name { font-weight:700;font-size:15px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.chat-preview { font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.chat-meta { display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0; }
+.chat-time { font-size:11px;color:var(--text3); }
+.chat-badge { background:var(--accent);color:#fff;font-size:10px;font-weight:800;border-radius:10px;padding:2px 7px;min-width:18px;text-align:center; }
+.empty { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center;color:var(--text3); }
+.empty-emoji { font-size:60px;margin-bottom:16px;opacity:.5; }
+.empty h3 { font-size:18px;font-weight:700;color:var(--text2);margin-bottom:8px; }
+.empty p { font-size:13px;line-height:1.6; }
+.search-wrap { padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5; }
+.search-inp { width:100%;padding:10px 16px;background:var(--bg3);border:1.5px solid var(--border2);border-radius:30px;color:var(--text);font-family:var(--font);font-size:14px;outline:none; }
+.search-inp:focus { border-color:var(--accent); }
+.search-inp::placeholder { color:var(--text3); }
 </style>
 </head>
 <body>
@@ -92,65 +35,85 @@
   <div class="topbar">
     <div class="topbar-title">Chat<span>City</span></div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <button class="btn-icon btn" onclick="go('contacts.html')" title="New chat" style="font-size:20px;">✏️</button>
+      <button class="btn-icon btn" onclick="go('contacts.html')" title="New chat"><i class="fas fa-pen-to-square"></i></button>
       <div id="my-av" class="av" style="width:38px;height:38px;font-size:14px;cursor:pointer;" onclick="go('profile.html')"></div>
     </div>
   </div>
+
+  <!-- Permission Banners -->
+  <div id="perm-banners"></div>
 
   <div class="page-content">
     <div class="search-wrap">
       <input class="search-inp" type="text" id="search" placeholder="🔍  Search chats…" oninput="filterChats()">
     </div>
-
     <div id="chats-list"></div>
     <div id="empty-state" class="empty hidden">
-      <div class="empty-emoji">💬</div>
+      <div class="empty-emoji"><i class="fas fa-comments" style="opacity:.3;"></i></div>
       <h3>No chats yet</h3>
-      <p>Tap the pencil icon above<br>to find and message someone</p>
+      <p>Tap the edit icon above<br>to find and message someone</p>
     </div>
   </div>
 
   <nav class="bnav">
     <button class="nbtn active" onclick="go('home.html')">
-      <span class="ni">💬</span><span class="nl">Chats</span>
+      <span class="ni"><i class="fas fa-comment-dots"></i></span>
+      <span class="nl">Chats</span>
       <span class="badge hidden" id="total-badge"></span>
     </button>
     <button class="nbtn" onclick="go('contacts.html')">
-      <span class="ni">👥</span><span class="nl">Contacts</span>
+      <span class="ni"><i class="fas fa-users"></i></span>
+      <span class="nl">Contacts</span>
     </button>
     <button class="nbtn" onclick="go('profile.html')">
-      <span class="ni">👤</span><span class="nl">Profile</span>
+      <span class="ni"><i class="fas fa-user"></i></span>
+      <span class="nl">Profile</span>
     </button>
   </nav>
 </div>
 
 <script type="module">
 import {
-  auth, db,
-  ref, get, onValue, off,
-  onAuthStateChanged,
-  colorFor, initialsOf, chatId, fmtTime, fmtDate,
-  getSession, saveSession, clearSession,
-  go, setOnline, toast, reportError
+  auth, db, ref, get, onValue, onAuthStateChanged,
+  colorFor, initialsOf, chatId, fmtTime,
+  getSession, saveSession, go, setOnline, toast
 } from './firebase.js';
 
 let me = null;
 let allChats = [];
+window.go = go;
 
-// ── Auth guard ──
+// Permission check
+function checkPermissions() {
+  const banners = document.getElementById('perm-banners');
+  banners.innerHTML = '';
+  if(!('Notification' in window)) return;
+  if(Notification.permission === 'default') {
+    banners.innerHTML += `<div class="perm-banner" onclick="requestNotifPerm()">
+      <i class="fas fa-bell"></i> চ্যাট নোটিফিকেশন পেতে এখানে চাপ দিয়ে পারমিশন অন করুন
+    </div>`;
+  }
+}
+
+window.requestNotifPerm = async () => {
+  const result = await Notification.requestPermission();
+  if(result === 'granted') {
+    toast('নোটিফিকেশন চালু হয়েছে ✓', 'ok');
+    checkPermissions();
+  }
+};
+
 onAuthStateChanged(auth, async user => {
   if(!user) { go('index.html'); return; }
   const sess = getSession();
   if(!sess || sess.uid !== user.uid) { go('index.html'); return; }
   me = user;
   await init();
+  checkPermissions();
 });
 
 async function init() {
-  // Set online
   await setOnline(me.uid);
-
-  // Render my avatar
   const snap = await get(ref(db, `users/${me.uid}`));
   const u = snap.val() || {};
   const av = document.getElementById('my-av');
@@ -161,27 +124,23 @@ async function init() {
     av.style.background = u.color || colorFor(me.uid);
   }
 
-  // Listen to all chats involving me
   onValue(ref(db, 'chats'), snap => {
     const all = snap.val() || {};
-    // Filter chats where I am a participant
     const mine = Object.entries(all).filter(([id]) => id.split('__').includes(me.uid));
-    renderChats(mine, all);
+    renderChats(mine);
   });
 }
 
-async function renderChats(mine, all) {
+async function renderChats(mine) {
   const list = document.getElementById('chats-list');
   list.innerHTML = '';
   allChats = [];
-
   if(!mine.length) {
     document.getElementById('empty-state').classList.remove('hidden');
     return;
   }
   document.getElementById('empty-state').classList.add('hidden');
 
-  // Build chat objects
   const chatObjects = [];
   for(const [id, ch] of mine) {
     const oid = id.split('__').find(x=>x!==me.uid);
@@ -192,10 +151,8 @@ async function renderChats(mine, all) {
     const msgs = ch.messages ? Object.values(ch.messages) : [];
     const last = msgs.sort((a,b)=>a.ts-b.ts).at(-1);
     const unread = msgs.filter(m=>m.senderId!==me.uid&&!m.seen).length;
-    chatObjects.push({ id, oid, u, last, unread, msgs });
+    chatObjects.push({ id, oid, u, last, unread });
   }
-
-  // Sort by last message time
   chatObjects.sort((a,b)=>(b.last?.ts||0)-(a.last?.ts||0));
   allChats = chatObjects;
 
@@ -205,7 +162,6 @@ async function renderChats(mine, all) {
     list.appendChild(buildChatItem(ch));
   });
 
-  // Update badge
   const badge = document.getElementById('total-badge');
   if(totalUnread > 0) {
     badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
@@ -220,12 +176,14 @@ function buildChatItem({ id, oid, u, last, unread }) {
   item.className = 'chat-item';
   item.dataset.name = (u.name||'').toLowerCase();
 
-  const preview = last
-    ? (last.type==='voice' ? '🎙 Voice message'
-     : last.type==='gif'   ? '🎞 GIF'
-     : last.type==='image' ? '🖼 Photo'
-     : (last.senderId===me.uid?'You: ':'')+( last.text||'' ))
-    : 'Tap to chat';
+  let preview = 'Tap to chat';
+  if(last) {
+    if(last.type==='voice') preview = '🎙 Voice message';
+    else if(last.type==='gif') preview = '🎞 GIF';
+    else if(last.type==='image') preview = '🖼 Photo';
+    else preview = (last.senderId===me.uid?'You: ':'')+( last.text||'' );
+    if(last.deleted) preview = '🚫 Message deleted';
+  }
 
   const avHtml = u.photo
     ? `<img src="${u.photo}" alt="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;">`
@@ -247,13 +205,13 @@ function buildChatItem({ id, oid, u, last, unread }) {
 
   item.onclick = () => {
     sessionStorage.setItem('cc_chat_target', JSON.stringify({
-      uid: oid, name: u.name, initials: u.initials||initialsOf(u.name||'?'),
+      uid: oid, name: u.name,
+      initials: u.initials||initialsOf(u.name||'?'),
       color: u.color||colorFor(oid), photo: u.photo||''
     }));
     go('chat.html');
   };
 
-  // Live online dot
   onValue(ref(db, `users/${oid}/online`), s => {
     const dot = document.getElementById(`dot-${oid}`);
     if(dot) dot.style.display = s.val() ? 'block' : 'none';
@@ -268,8 +226,6 @@ window.filterChats = () => {
     el.style.display = (!q || el.dataset.name.includes(q)) ? '' : 'none';
   });
 };
-
-window.go = go;
 </script>
 </body>
 </html>
