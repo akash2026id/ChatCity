@@ -171,23 +171,25 @@ import {
   go, createUserSearchIndex
 } from './firebase.js';
 
-// ── KEYS ──
-const ABSTRACT_KEY = '3deae27448f549468b9b142eda351e2b';
-const BREVO_KEY    = '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';
-const BASE_URL     = window.location.href.replace(/[^/]*$/, '');
+// ── BASE URL ──
+const BASE_URL = window.location.href.replace(/[^/]*$/, '');
+// ── Server proxy — API keys hidden server-side ──
+const API_BASE = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
+  ? 'http://localhost:3001'
+  : 'https://chatcity-api.onrender.com'; // ← replace with your server URL
 
 let pendingUser = null, pinEntered = '';
 let emailCache = {}, emailTimers = {};
 
 // ════════════════════════════════
-// EMAIL VALIDATION — Abstract API
+// EMAIL VALIDATION — via server proxy
 // ════════════════════════════════
 async function validateEmail(email) {
   if(emailCache[email] !== undefined) return emailCache[email];
   try {
-    const r = await fetch(`https://emailvalidation.abstractapi.com/v1/?api_key=${ABSTRACT_KEY}&email=${encodeURIComponent(email)}`);
+    const r = await fetch(`${API_BASE}/api/validate-email?email=${encodeURIComponent(email)}`);
     const d = await r.json();
-    const ok = d.deliverability === 'DELIVERABLE' && d.is_valid_format?.value === true;
+    const ok = d.valid !== false;
     emailCache[email] = ok;
     return ok;
   } catch { return true; } // fail-open: don't block on API error
@@ -210,20 +212,16 @@ window.schedEmailCheck = (inpId, stId) => {
 };
 
 // ════════════════════════════════
-// BREVO — Send Email
+// BREVO — Send Email via server proxy
 // ════════════════════════════════
 async function sendBrevoEmail(toEmail, toName, subject, html) {
   try {
-    await fetch('https://api.brevo.com/v3/smtp/email', {
+    await fetch(`${API_BASE}/api/send-email`, {
       method: 'POST',
-      headers: { 'Content-Type':'application/json', 'api-key': BREVO_KEY },
-      body: JSON.stringify({
-        sender: { name:'ChatCity', email:'abuhurirabd71@gmail.com' },
-        to: [{ email: toEmail, name: toName }],
-        subject, htmlContent: html
-      })
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ to: toEmail, toName, subject, html })
     });
-  } catch(e){ console.warn('Brevo error:', e); }
+  } catch(e){ console.warn('Brevo proxy error:', e); }
 }
 
 function buildWelcomeEmail(name) {
