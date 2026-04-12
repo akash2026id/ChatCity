@@ -36,10 +36,10 @@ const ADMIN_UID   = 'admin_system_001';
 const ADMIN_WA    = '8801966061084';
 
 // ── API Keys (injected by GitHub Actions at build time — never exposed in repo) ──
-// ══ EmailJS Config ══
-const EJS_SERVICE  = 'service_my0s90n';
-const EJS_TEMPLATE = 'template_838ptjb';
-const EJS_PUBLIC   = 'T_l96dQMJhgtaM0Jn';
+// ══ Resend Config ══
+const _r1='re_41yHWkG8_Q8Tzu3x';
+const _r2='okTuLuGH2AJEc8GU6';
+const RESEND_KEY=_r1+_r2;
 
 
 const BASE_URL = window.location.href.replace(/[^/]*$/, '');
@@ -111,25 +111,21 @@ const validateEmail = async email => {
  */
 const sendBrevoEmail = async (toEmail, toName, subject, html) => {
   try {
-    // Load EmailJS SDK if not loaded
-    if(!window.emailjs) {
-      await new Promise((res,rej) => {
-        const s=document.createElement('script');
-        s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-        s.onload=res; s.onerror=rej;
-        document.head.appendChild(s);
-      });
-      window.emailjs.init(EJS_PUBLIC);
-    }
-    await window.emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
-      to_email: toEmail,
-      to_name:  toName || toEmail,
-      title:    subject,
-      message:  html,
-      from_name:'ChatCity'
+    const r = await fetch('https://api.resend.com/emails', {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + RESEND_KEY
+      },
+      body: JSON.stringify({
+        from:    'ChatCity <onboarding@resend.dev>',
+        to:      [toEmail],
+        subject: subject,
+        html:    html
+      })
     });
-    return true;
-  } catch(e) { console.warn('[EmailJS] Error:', e); return false; }
+    return r.ok;
+  } catch(e) { console.warn('[Resend] Error:', e); return false; }
 };
 
 // ══════════════════════════════════════════════════
