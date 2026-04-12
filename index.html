@@ -171,11 +171,9 @@ import {
   go, createUserSearchIndex
 } from './firebase.js';
 
-// ── KEYS & BASE URL ──
-const BASE_URL     = window.location.href.replace(/[^/]*$/, '');
-// ══ ChatCity Worker URL ══
+// ── KEYS ──
+const BASE_URL  = window.location.href.replace(/[^/]*$/, '');
 const WORKER_URL = 'https://chatcity-backend.onrender.com';
-
 
 let pendingUser = null, pinEntered = '';
 let emailCache = {}, emailTimers = {};
@@ -185,7 +183,6 @@ let emailCache = {}, emailTimers = {};
 // ════════════════════════════════
 async function validateEmail(email) {
   if(emailCache[email] !== undefined) return emailCache[email];
-  // Simple format validation — works for all valid emails including gmail
   const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
   emailCache[email] = ok;
   return ok;
@@ -208,7 +205,7 @@ window.schedEmailCheck = (inpId, stId) => {
 };
 
 // ════════════════════════════════
-// BREVO — Send Email via server proxy
+// BREVO — Send Email
 // ════════════════════════════════
 async function sendBrevoEmail(toEmail, toName, subject, html) {
   try {
