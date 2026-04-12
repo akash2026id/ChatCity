@@ -1,0 +1,22 @@
+name: Deploy ChatCity
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Inject API Keys into firebase.js
+        run: |
+          sed -i "s|__BREVO_KEY__|${{ secrets.BREVO_KEY }}|g" firebase.js
+          sed -i "s|__ABSTRACT_KEY__|${{ secrets.ABSTRACT_KEY }}|g" firebase.js
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
