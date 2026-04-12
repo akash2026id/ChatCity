@@ -173,10 +173,8 @@ import {
 
 // ── KEYS & BASE URL ──
 const BASE_URL     = window.location.href.replace(/[^/]*$/, '');
-// ══ Resend Config ══
-const _r1='re_41yHWkG8_Q8Tzu3x';
-const _r2='okTuLuGH2AJEc8GU6';
-const RESEND_KEY=_r1+_r2;
+// ══ ChatCity Worker URL ══
+const WORKER_URL = 'https://chatcity-backend.onrender.com';
 
 
 let pendingUser = null, pinEntered = '';
@@ -214,20 +212,12 @@ window.schedEmailCheck = (inpId, stId) => {
 // ════════════════════════════════
 async function sendBrevoEmail(toEmail, toName, subject, html) {
   try {
-    await fetch('https://api.resend.com/emails', {
+    await fetch(WORKER_URL + '/api/send-email', {
       method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': 'Bearer ' + RESEND_KEY
-      },
-      body: JSON.stringify({
-        from:    'ChatCity <onboarding@resend.dev>',
-        to:      [toEmail],
-        subject: subject,
-        html:    html
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ to: toEmail, toName, subject, html })
     });
-  } catch(e){ console.warn('Resend error:', e); }
+  } catch(e){ console.warn('Email error:', e); }
 }
 
 function buildWelcomeEmail(name) {
