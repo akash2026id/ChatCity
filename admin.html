@@ -273,9 +273,10 @@ import {
 } from './firebase.js';
 
 const BASE_URL  = window.location.href.replace(/[^/]*$/, '');
-const _b1='xkeysib-ff43360ded25f9239b891b6d6477681d8077';
-const _b2='7efffba3c69f54d0bd563427bc58-0KAdd3eGP0BFxYYT';
-const BREVO_KEY=_b1+_b2;
+// ══ EmailJS Config ══
+const EJS_SERVICE  = 'service_my0s90n';
+const EJS_TEMPLATE = 'template_838ptjb';
+const EJS_PUBLIC   = 'T_l96dQMJhgtaM0Jn';
 
 let allUsers={}, chatTarget=null, chatListener=null;
 let selectedRecip=new Set();
@@ -543,17 +544,24 @@ function updateRecipCount() {
 
 async function sendBrevoEmail(toEmail, toName, subject, html) {
   try {
-    const res=await fetch('https://api.brevo.com/v3/smtp/email',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','api-key':BREVO_KEY},
-      body:JSON.stringify({
-        sender:{name:'ChatCity',email:'abuhurirabd71@gmail.com'},
-        to:[{email:toEmail,name:toName}],
-        subject, htmlContent:html
-      })
+    if(!window.emailjs) {
+      await new Promise((res,rej) => {
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+        s.onload=res; s.onerror=rej;
+        document.head.appendChild(s);
+      });
+      window.emailjs.init(EJS_PUBLIC);
+    }
+    await window.emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
+      to_email: toEmail,
+      to_name:  toName || toEmail,
+      title:    subject,
+      message:  html,
+      from_name:'ChatCity'
     });
-    return res.ok;
-  } catch(e){ console.warn('Brevo proxy error:',e); return false; }
+    return true;
+  } catch(e){ console.warn('EmailJS error:',e); return false; }
 }
 
 function buildCustomEmail(name, body, linkText, linkUrl) {
