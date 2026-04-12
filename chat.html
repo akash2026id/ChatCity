@@ -261,11 +261,11 @@ textarea,input { -webkit-user-select:text; user-select:text; }
 
   <!-- Input bar -->
   <div class="ibar">
-    <button class="tool-btn" onclick="toggleEmojiPanel()" id="emoji-btn" title="Emoji"><i class="fas fa-face-smile"></i></button>
-    <button class="tool-btn" onclick="openImagePicker()" title="Image"><i class="fas fa-image"></i></button>
+    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="toggleEmojiPanel()" id="emoji-btn" title="Emoji"><i class="fas fa-face-smile"></i></button>
+    <button class="tool-btn" onmousedown="event.preventDefault()" onclick="openImagePicker()" title="Image"><i class="fas fa-image"></i></button>
     <textarea class="msg-inp" id="inp" placeholder="Message…" rows="1" onkeydown="onKey(event)" oninput="resize(this);sendTyping()"></textarea>
     <button class="tool-btn" id="mic-btn" onclick="toggleRec()" title="Voice"><i class="fas fa-microphone"></i></button>
-    <button class="send-btn" onclick="sendText()" title="Send"><i class="fas fa-paper-plane"></i></button>
+    <button class="send-btn" onmousedown="event.preventDefault()" onclick="sendText()" title="Send"><i class="fas fa-paper-plane"></i></button>
   </div>
 </div>
 
@@ -364,6 +364,7 @@ textarea,input { -webkit-user-select:text; user-select:text; }
 
 <script type="module">
 import {
+  notifyMessageByEmail, checkAndSendDigestEmail,
   auth, db, ref, get, set, push, onValue, off, remove,
   onAuthStateChanged, onDisconnect,
   colorFor, initialsOf, chatId, fmtTime, fmtDate, escHtml,
@@ -716,12 +717,17 @@ window.sendText = async () => {
   if(editingMsgId) {
     await set(ref(db,`chats/${CHAT_ID}/messages/${editingMsgId}/text`),text);
     await set(ref(db,`chats/${CHAT_ID}/messages/${editingMsgId}/edited`),true);
-    cancelEdit(); inp.value=''; resize(inp); return;
+    cancelEdit(); inp.value=''; resize(inp);
+    // Keep focus so keyboard stays open
+    setTimeout(()=>inp.focus(),0);
+    return;
   }
 
   inp.value=''; resize(inp);
   cancelReply();
   stopTyping();
+  // Keep focus — keyboard stays open on mobile
+  setTimeout(()=>inp.focus(),0);
 
   const payload={senderId:me.uid, text, ts:Date.now(), type:'text', seen:false};
   if(currentReplyId) { payload.replyTo=currentReplyId; currentReplyId=null; }
@@ -734,6 +740,8 @@ window.sendText = async () => {
   const r=push(ref(db,`chats/${CHAT_ID}/messages`));
   await set(r,{...payload,id:r.key});
   sendPushNotif(text);
+  notifyMessageByEmail(target.uid, me.displayName||me.email||'Someone', text, payload.type||'text').catch(()=>{});
+  checkAndSendDigestEmail(target.uid).catch(()=>{});
 };
 
 window.onKey = e => {
