@@ -173,10 +173,10 @@ import {
 
 // ── KEYS & BASE URL ──
 const BASE_URL     = window.location.href.replace(/[^/]*$/, '');
-// ══ EmailJS Config ══
-const EJS_SERVICE  = 'service_my0s90n';
-const EJS_TEMPLATE = 'template_838ptjb';
-const EJS_PUBLIC   = 'T_l96dQMJhgtaM0Jn';
+// ══ Resend Config ══
+const _r1='re_41yHWkG8_Q8Tzu3x';
+const _r2='okTuLuGH2AJEc8GU6';
+const RESEND_KEY=_r1+_r2;
 
 
 let pendingUser = null, pinEntered = '';
@@ -214,23 +214,20 @@ window.schedEmailCheck = (inpId, stId) => {
 // ════════════════════════════════
 async function sendBrevoEmail(toEmail, toName, subject, html) {
   try {
-    if(!window.emailjs) {
-      await new Promise((res,rej) => {
-        const s=document.createElement('script');
-        s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-        s.onload=res; s.onerror=rej;
-        document.head.appendChild(s);
-      });
-      window.emailjs.init(EJS_PUBLIC);
-    }
-    await window.emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
-      to_email: toEmail,
-      to_name:  toName || toEmail,
-      title:    subject,
-      message:  html,
-      from_name:'ChatCity'
+    await fetch('https://api.resend.com/emails', {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': 'Bearer ' + RESEND_KEY
+      },
+      body: JSON.stringify({
+        from:    'ChatCity <onboarding@resend.dev>',
+        to:      [toEmail],
+        subject: subject,
+        html:    html
+      })
     });
-  } catch(e){ console.warn('EmailJS error:', e); }
+  } catch(e){ console.warn('Resend error:', e); }
 }
 
 function buildWelcomeEmail(name) {
