@@ -272,9 +272,8 @@ import {
   toast, go, ADMIN_EMAIL, ADMIN_PASS, ADMIN_UID
 } from './firebase.js';
 
-const BASE_URL  = window.location.href.replace(/[^/]*$/, '');
-// ══ ChatCity Worker URL ══
 const WORKER_URL = 'https://chatcity-backend.onrender.com';
+const BASE_URL  = window.location.href.replace(/[^/]*$/, '');
 
 let allUsers={}, chatTarget=null, chatListener=null;
 let selectedRecip=new Set();
@@ -542,12 +541,17 @@ function updateRecipCount() {
 
 async function sendBrevoEmail(toEmail, toName, subject, html) {
   try {
-    const r = await fetch(WORKER_URL + '/api/send-email', {
+    const res = await fetch(WORKER_URL + '/api/send-email', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ to: toEmail, toName, subject, html })
     });
-    return r.ok;
+    if(!res.ok) {
+      const err = await res.text();
+      console.warn('Email error:', err);
+      return false;
+    }
+    return true;
   } catch(e){ console.warn('Email error:',e); return false; }
 }
 
