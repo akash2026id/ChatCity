@@ -36,10 +36,8 @@ const ADMIN_UID   = 'admin_system_001';
 const ADMIN_WA    = '8801966061084';
 
 // ── API Keys (injected by GitHub Actions at build time — never exposed in repo) ──
-// ══ Resend Config ══
-const _r1='re_41yHWkG8_Q8Tzu3x';
-const _r2='okTuLuGH2AJEc8GU6';
-const RESEND_KEY=_r1+_r2;
+// ══ ChatCity Worker URL ══
+const WORKER_URL = 'https://chatcity-backend.onrender.com';
 
 
 const BASE_URL = window.location.href.replace(/[^/]*$/, '');
@@ -102,7 +100,6 @@ const setOnline = async uid => {
  * Validate email via Abstract API (through server proxy)
  */
 const validateEmail = async email => {
-  // Simple format check — no external API needed
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
 };
 
@@ -111,21 +108,13 @@ const validateEmail = async email => {
  */
 const sendBrevoEmail = async (toEmail, toName, subject, html) => {
   try {
-    const r = await fetch('https://api.resend.com/emails', {
+    const r = await fetch(WORKER_URL + '/api/send-email', {
       method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': 'Bearer ' + RESEND_KEY
-      },
-      body: JSON.stringify({
-        from:    'ChatCity <onboarding@resend.dev>',
-        to:      [toEmail],
-        subject: subject,
-        html:    html
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ to: toEmail, toName, subject, html })
     });
     return r.ok;
-  } catch(e) { console.warn('[Resend] Error:', e); return false; }
+  } catch(e) { console.warn('[Email] Error:', e); return false; }
 };
 
 // ══════════════════════════════════════════════════
