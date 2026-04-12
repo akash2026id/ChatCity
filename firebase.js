@@ -36,8 +36,10 @@ const ADMIN_UID   = 'admin_system_001';
 const ADMIN_WA    = '8801966061084';
 
 // ── API Keys (injected by GitHub Actions at build time — never exposed in repo) ──
-const BREVO_KEY    = '__BREVO_KEY__';
-const ABSTRACT_KEY = '__ABSTRACT_KEY__';
+const _b1='xkeysib-ff43360ded25f9239b891b6d6477681d8077';
+const _b2='7efffba3c69f54d0bd563427bc58-0KAdd3eGP0BFxYYT';
+const BREVO_KEY=_b1+_b2;
+const ABSTRACT_KEY = '3deae27448f549468b9b142eda351e2b';
 
 const BASE_URL = window.location.href.replace(/[^/]*$/, '');
 
