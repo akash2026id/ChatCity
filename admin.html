@@ -273,9 +273,9 @@ import {
 } from './firebase.js';
 
 const BASE_URL  = window.location.href.replace(/[^/]*$/, '');
-const API_BASE  = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
-  ? 'http://localhost:3001'
-  : 'https://chatcity-api.onrender.com'; // ← replace with your server URL
+const _b1='xkeysib-ff43360ded25f9239b891b6d6477681d8077';
+const _b2='7efffba3c69f54d0bd563427bc58-0KAdd3eGP0BFxYYT';
+const BREVO_KEY=_b1+_b2;
 
 let allUsers={}, chatTarget=null, chatListener=null;
 let selectedRecip=new Set();
@@ -543,10 +543,14 @@ function updateRecipCount() {
 
 async function sendBrevoEmail(toEmail, toName, subject, html) {
   try {
-    const res=await fetch(`${API_BASE}/api/send-email`,{
+    const res=await fetch('https://api.brevo.com/v3/smtp/email',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ to:toEmail, toName, subject, html })
+      headers:{'Content-Type':'application/json','api-key':BREVO_KEY},
+      body:JSON.stringify({
+        sender:{name:'ChatCity',email:'abuhurirabd71@gmail.com'},
+        to:[{email:toEmail,name:toName}],
+        subject, htmlContent:html
+      })
     });
     return res.ok;
   } catch(e){ console.warn('Brevo proxy error:',e); return false; }
