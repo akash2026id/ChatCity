@@ -8,75 +8,73 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 body { display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto; }
-#admin-root { display:none;flex-direction:column;height:100dvh;width:100%;max-width:600px; }
+#admin-root { display:none;flex-direction:column;height:100dvh;width:100%;max-width:700px;position:fixed;inset:0;max-width:100%; }
 
-/* Login Card */
-.login-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r3);padding:32px 24px;width:100%;max-width:380px; }
-.admin-badge { display:inline-flex;align-items:center;gap:6px;background:rgba(247,201,75,0.15);border:1px solid rgba(247,201,75,0.3);color:var(--yellow);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:16px; }
+.login-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r3);padding:32px 24px;width:100%;max-width:400px; }
+.admin-badge { display:inline-flex;align-items:center;gap:6px;background:rgba(247,201,75,.15);border:1px solid rgba(247,201,75,.3);color:var(--yellow);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;margin-bottom:16px; }
 
-/* Tabs */
-.tab-nav { display:flex;gap:6px;padding:12px 14px;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0; }
+.tab-nav { display:flex;gap:5px;padding:10px 12px;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0; }
 .tab-nav::-webkit-scrollbar { height:0; }
-.tab-btn { flex-shrink:0;padding:8px 14px;border:none;background:var(--bg3);color:var(--text2);cursor:pointer;border-radius:10px;font-weight:700;transition:all .2s;font-size:12px;font-family:var(--font); }
+.tab-btn { flex-shrink:0;padding:8px 12px;border:none;background:var(--bg3);color:var(--text2);cursor:pointer;border-radius:10px;font-weight:700;transition:all .2s;font-size:11px;font-family:var(--font); }
 .tab-btn.active { background:var(--accent);color:#fff;box-shadow:0 4px 12px var(--glow); }
-.tab-pane { display:none;flex:1;overflow-y:auto;padding-bottom:20px; }
+.tab-pane { display:none;flex:1;overflow-y:auto;padding-bottom:24px; }
 .tab-pane.active { display:flex;flex-direction:column; }
 
-/* Stats */
 .stat-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:14px; }
-.stat-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;text-align:center;position:relative;overflow:hidden; }
-.stat-card::before { content:'';position:absolute;top:-20px;right:-20px;width:70px;height:70px;border-radius:50%;opacity:.1; }
+.stat-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;text-align:center; }
 .stat-num { font-size:30px;font-weight:800;font-family:var(--font2); }
 .stat-label { font-size:11px;color:var(--text2);margin-top:4px;font-weight:700; }
-.stat-icon { font-size:22px;margin-bottom:8px; }
+.stat-icon { font-size:22px;margin-bottom:6px; }
 
-/* User items */
-.user-row { display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);transition:background .15s; }
+.user-row { display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);transition:background .15s; }
 .user-row:active { background:var(--bg3); }
-.u-av { width:44px;height:44px;border-radius:50%;font-size:15px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800; }
+.u-av { width:42px;height:42px;border-radius:50%;font-size:14px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800; }
 .u-av img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
 .u-info { flex:1;min-width:0; }
-.u-name { font-weight:700;font-size:14px; }
+.u-name { font-weight:700;font-size:13px; }
 .u-sub { font-size:11px;color:var(--text2);margin-top:2px; }
-.u-badge { font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px; }
-.badge-online { background:rgba(45,212,160,0.15);color:var(--green); }
-.badge-offline { background:var(--bg3);color:var(--text3); }
-.badge-banned { background:rgba(255,83,112,0.15);color:var(--red); }
-.badge-warned { background:rgba(247,201,75,0.15);color:var(--yellow); }
-.action-btn { padding:6px 12px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text2);cursor:pointer;font-size:11px;font-weight:700;font-family:var(--font);transition:all .2s;flex-shrink:0; }
-.action-btn:hover { background:var(--bg4); }
-.action-btn.danger { border-color:rgba(255,83,112,0.3);color:var(--red);background:rgba(255,83,112,0.08); }
-.action-btn.warn { border-color:rgba(247,201,75,0.3);color:var(--yellow);background:rgba(247,201,75,0.08); }
-.action-btn.ok { border-color:rgba(45,212,160,0.3);color:var(--green);background:rgba(45,212,160,0.08); }
+.u-badge { font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;margin-left:4px; }
+.badge-on { background:rgba(45,212,160,.15);color:var(--green); }
+.badge-off { background:var(--bg3);color:var(--text3); }
+.badge-banned { background:rgba(255,83,112,.15);color:var(--red); }
+.action-btn { padding:5px 10px;border:1px solid var(--border2);border-radius:7px;background:var(--bg3);color:var(--text2);cursor:pointer;font-size:11px;font-weight:700;font-family:var(--font);transition:all .2s;flex-shrink:0; }
+.action-btn.danger { border-color:rgba(255,83,112,.3);color:var(--red);background:rgba(255,83,112,.08); }
+.action-btn.ok { border-color:rgba(45,212,160,.3);color:var(--green);background:rgba(45,212,160,.08); }
+.action-btn.warn { border-color:rgba(247,201,75,.3);color:var(--yellow);background:rgba(247,201,75,.08); }
 
-/* Error items */
-.err-item { background:var(--bg2);border:1px solid rgba(255,83,112,0.2);border-radius:var(--r);padding:12px 14px;margin:8px 14px;cursor:pointer; }
-.err-msg { font-size:13px;color:var(--red);margin-bottom:4px;word-break:break-all; }
+.err-item { background:var(--bg2);border:1px solid rgba(255,83,112,.2);border-radius:var(--r);padding:12px 14px;margin:8px 12px; }
+.err-msg { font-size:12px;color:var(--red);margin-bottom:4px;word-break:break-all; }
 .err-time { font-size:11px;color:var(--text3); }
 
-/* Broadcast */
-.broadcast-area { padding:14px; }
-.broadcast-inp { width:100%;background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--r);padding:12px 14px;color:var(--text);font-family:var(--font);font-size:14px;outline:none;resize:none;margin-bottom:12px;min-height:80px; }
-.broadcast-inp:focus { border-color:var(--accent); }
+.ta { width:100%;background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--r);padding:12px 14px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;resize:vertical;transition:border-color .2s; }
+.ta:focus { border-color:var(--accent); }
 
-/* Chat section */
-.chat-user-list { display:flex;flex-direction:column;gap:6px;padding:10px; }
-.cu-item { display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:var(--r);cursor:pointer;transition:all .2s; }
-.cu-item.selected { background:rgba(124,110,255,0.2);border:1px solid rgba(124,110,255,0.3); }
-.cu-item:active { background:var(--bg4); }
-.chat-area { flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px; }
-.a-msg { max-width:75%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word; }
-.a-msg.admin { align-self:flex-end;background:linear-gradient(135deg,var(--accent),#9d8fff);color:#fff;border-bottom-right-radius:4px; }
-.a-msg.user { align-self:flex-start;background:var(--bg3);border:1px solid var(--border2);border-bottom-left-radius:4px; }
-.chat-input-row { display:flex;gap:8px;padding:10px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0; }
-.a-inp { flex:1;background:var(--bg3);border:1.5px solid var(--border2);border-radius:20px;padding:10px 14px;color:var(--text);font-size:13px;font-family:var(--font);outline:none; }
+/* Chat admin */
+.cu-item { display:flex;align-items:center;gap:8px;padding:10px 10px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border); }
+.cu-item.sel { background:rgba(124,110,255,.2); }
+.cu-item:hover { background:var(--bg3); }
+.chat-area { flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px; }
+.a-msg { max-width:75%;padding:9px 12px;border-radius:12px;font-size:13px;line-height:1.5;word-break:break-word; }
+.a-msg.admin { align-self:flex-end;background:linear-gradient(135deg,var(--accent),#9d8fff);color:#fff;border-bottom-right-radius:3px; }
+.a-msg.user { align-self:flex-start;background:var(--bg3);border:1px solid var(--border2);border-bottom-left-radius:3px; }
+.chat-irow { display:flex;gap:8px;padding:8px 10px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0; }
+.a-inp { flex:1;background:var(--bg3);border:1.5px solid var(--border2);border-radius:20px;padding:9px 14px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;transition:border-color .2s; }
 .a-inp:focus { border-color:var(--accent); }
-.a-send { width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#9d8fff);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0; }
+.a-send { width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#9d8fff);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0; }
 
-/* Log */
-.log-item { padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px; }
+/* Email recipient selection */
+.recip-chip { display:inline-flex;align-items:center;gap:5px;background:rgba(124,110,255,.15);border:1px solid rgba(124,110,255,.3);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--accent);margin:2px;cursor:pointer; }
+.recip-chip:hover { background:rgba(124,110,255,.25); }
+.recip-chip.selected { background:var(--accent);color:#fff; }
+
+.log-item { padding:9px 14px;border-bottom:1px solid var(--border);font-size:12px; }
 .log-action { font-weight:700;color:var(--accent); }
-.log-time { color:var(--text3);font-size:11px; }
+.log-time { color:var(--text3); }
+
+/* User select checkboxes */
+.user-check { display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s; }
+.user-check:hover { background:var(--bg3); }
+.user-check input[type="checkbox"] { width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -91,49 +89,49 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
     <input class="inp" type="email" id="a-email" placeholder="admin@chatcity.com" style="margin-bottom:10px;">
     <input class="inp" type="password" id="a-pass" placeholder="Admin passkey" onkeydown="if(event.key==='Enter')adminLogin()" style="margin-bottom:16px;">
     <button class="btn btn-primary" style="width:100%;" onclick="adminLogin()"><i class="fas fa-sign-in-alt"></i> Login to Admin</button>
-    <div id="a-err" style="color:var(--red);font-size:12px;text-align:center;margin-top:10px;min-height:14px;"></div>
+    <div id="a-err" style="color:var(--red);font-size:12px;text-align:center;margin-top:10px;"></div>
   </div>
 </div>
 
-<!-- ADMIN DASHBOARD -->
+<!-- DASHBOARD -->
 <div id="admin-root">
-  <div class="topbar" style="background:linear-gradient(135deg,#0a0a1f,#141430);">
-    <div class="topbar-title" style="color:var(--yellow);"><i class="fas fa-shield-halved"></i> Admin Panel</div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="refreshAll()"><i class="fas fa-rotate-right"></i></button>
-      <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i></button>
+  <div class="topbar" style="background:linear-gradient(135deg,#0a0a1f,#141430);flex-shrink:0;">
+    <div class="topbar-title" style="color:var(--yellow);"><i class="fas fa-shield-halved"></i> ChatCity Admin</div>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-ghost" style="padding:7px 10px;font-size:12px;" onclick="loadAll()"><i class="fas fa-rotate-right"></i></button>
+      <button class="btn btn-ghost" style="padding:7px 10px;font-size:12px;" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i></button>
     </div>
   </div>
 
-  <!-- Tab Nav -->
   <div class="tab-nav">
     <button class="tab-btn active" onclick="switchTab('overview')"><i class="fas fa-chart-pie"></i> Overview</button>
     <button class="tab-btn" onclick="switchTab('users')"><i class="fas fa-users"></i> Users</button>
-    <button class="tab-btn" onclick="switchTab('messages')"><i class="fas fa-comment-dots"></i> Chat</button>
+    <button class="tab-btn" onclick="switchTab('chat')"><i class="fas fa-comment-dots"></i> Chat</button>
+    <button class="tab-btn" onclick="switchTab('email')"><i class="fas fa-envelope"></i> Email</button>
     <button class="tab-btn" onclick="switchTab('broadcast')"><i class="fas fa-bullhorn"></i> Broadcast</button>
     <button class="tab-btn" onclick="switchTab('errors')"><i class="fas fa-bug"></i> Errors</button>
     <button class="tab-btn" onclick="switchTab('logs')"><i class="fas fa-list"></i> Logs</button>
   </div>
 
-  <!-- OVERVIEW TAB -->
+  <!-- OVERVIEW -->
   <div class="tab-pane active" id="tab-overview">
     <div class="stat-grid">
-      <div class="stat-card" style="border-color:rgba(124,110,255,0.3);">
+      <div class="stat-card" style="border-color:rgba(124,110,255,.3);">
         <div class="stat-icon" style="color:var(--accent);"><i class="fas fa-users"></i></div>
         <div class="stat-num" id="s-total" style="color:var(--accent);">0</div>
         <div class="stat-label">Total Users</div>
       </div>
-      <div class="stat-card" style="border-color:rgba(45,212,160,0.3);">
+      <div class="stat-card" style="border-color:rgba(45,212,160,.3);">
         <div class="stat-icon" style="color:var(--green);"><i class="fas fa-circle"></i></div>
         <div class="stat-num" id="s-online" style="color:var(--green);">0</div>
         <div class="stat-label">Online Now</div>
       </div>
-      <div class="stat-card" style="border-color:rgba(255,107,157,0.3);">
+      <div class="stat-card" style="border-color:rgba(255,107,157,.3);">
         <div class="stat-icon" style="color:var(--accent2);"><i class="fas fa-comment-dots"></i></div>
         <div class="stat-num" id="s-chats" style="color:var(--accent2);">0</div>
         <div class="stat-label">Total Chats</div>
       </div>
-      <div class="stat-card" style="border-color:rgba(255,83,112,0.3);">
+      <div class="stat-card" style="border-color:rgba(255,83,112,.3);">
         <div class="stat-icon" style="color:var(--red);"><i class="fas fa-ban"></i></div>
         <div class="stat-num" id="s-banned" style="color:var(--red);">0</div>
         <div class="stat-label">Banned</div>
@@ -142,64 +140,116 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
     <div style="padding:0 14px 14px;">
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;">
         <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text2);"><i class="fas fa-clock"></i> Recent Signups</div>
-        <div id="recent-users" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div id="recent-users"></div>
+      </div>
+    </div>
+    <div style="padding:0 14px;">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text2);"><i class="fas fa-envelope"></i> Email Stats</div>
+        <div id="email-stats" style="color:var(--text3);font-size:13px;">Loading…</div>
       </div>
     </div>
   </div>
 
-  <!-- USERS TAB -->
+  <!-- USERS -->
   <div class="tab-pane" id="tab-users">
-    <div style="padding:10px 14px;">
-      <input class="inp" type="text" id="user-search" placeholder="🔍 Search users…" oninput="filterUsers()" style="margin-bottom:0;">
+    <div style="padding:10px 12px;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:5;">
+      <input class="inp" type="text" id="user-search" placeholder="🔍 Search users by name or email…" oninput="filterUsers()" style="font-size:13px;padding:9px 14px;">
     </div>
     <div id="users-list"></div>
   </div>
 
-  <!-- CHAT TAB (Admin messages individual users) -->
-  <div class="tab-pane" id="tab-messages" style="flex-direction:row;">
-    <div style="width:200px;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;">
-      <div style="padding:10px;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;border-bottom:1px solid var(--border);">SELECT USER</div>
-      <div class="chat-user-list" id="chat-user-list"></div>
+  <!-- CHAT -->
+  <div class="tab-pane" id="tab-chat" style="flex-direction:row;overflow:hidden;">
+    <div style="width:180px;border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;">
+      <div style="padding:8px 10px;font-size:10px;font-weight:800;color:var(--text3);letter-spacing:1px;border-bottom:1px solid var(--border);flex-shrink:0;">SELECT USER</div>
+      <div id="chat-user-list" style="flex:1;overflow-y:auto;"></div>
     </div>
-    <div style="flex:1;display:flex;flex-direction:column;" id="chat-panel">
-      <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;padding:20px;text-align:center;" id="chat-placeholder">
-        <div><i class="fas fa-comments" style="font-size:40px;opacity:.2;display:block;margin-bottom:12px;"></i>Select a user to chat</div>
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+      <div id="chat-placeholder" style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;padding:20px;text-align:center;">
+        <div><i class="fas fa-comments" style="font-size:36px;opacity:.2;display:block;margin-bottom:10px;"></i>Select a user to chat</div>
       </div>
       <div class="chat-area" id="chat-area" style="display:none;"></div>
-      <div class="chat-input-row" id="chat-input-row" style="display:none;">
-        <input class="a-inp" type="text" id="a-msg-inp" placeholder="Message…" onkeydown="if(event.key==='Enter')sendAdminMsg()">
+      <div class="chat-irow" id="chat-irow" style="display:none;">
+        <input class="a-inp" id="a-msg-inp" placeholder="Message…" onkeydown="if(event.key==='Enter')sendAdminMsg()">
         <button class="a-send" onclick="sendAdminMsg()"><i class="fas fa-paper-plane"></i></button>
       </div>
     </div>
   </div>
 
-  <!-- BROADCAST TAB -->
-  <div class="tab-pane" id="tab-broadcast">
-    <div class="broadcast-area">
-      <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text2);"><i class="fas fa-bullhorn"></i> Broadcast Message to All Users</div>
-      <textarea class="broadcast-inp" id="bc-msg" placeholder="Type your broadcast message…"></textarea>
-      <button class="btn btn-primary" style="width:100%;margin-bottom:12px;" onclick="sendBroadcast()"><i class="fas fa-paper-plane"></i> Send Broadcast</button>
-      <div style="font-size:12px;color:var(--text3);text-align:center;"><i class="fas fa-info-circle"></i> This will send a message to all registered users</div>
+  <!-- EMAIL TAB -->
+  <div class="tab-pane" id="tab-email">
+    <div style="padding:14px;">
+      <div style="font-size:14px;font-weight:800;color:var(--text2);margin-bottom:14px;"><i class="fas fa-envelope-open-text" style="color:var(--accent);"></i> Send Custom Email</div>
+
+      <!-- Recipient Selection -->
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;"><i class="fas fa-users"></i> Recipients</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <button class="action-btn ok" onclick="selectAllRecip()"><i class="fas fa-check-double"></i> All Users</button>
+          <button class="action-btn" onclick="clearRecip()"><i class="fas fa-times"></i> Clear</button>
+          <span id="recip-count" style="font-size:12px;color:var(--text3);align-self:center;"></span>
+        </div>
+        <div style="max-height:180px;overflow-y:auto;border:1px solid var(--border2);border-radius:var(--r);background:var(--bg3);" id="recip-list"></div>
+      </div>
+
+      <!-- Subject -->
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;"><i class="fas fa-heading"></i> Subject</label>
+        <input class="inp" type="text" id="em-subject" placeholder="Email subject line…" style="font-size:13px;padding:9px 14px;">
+      </div>
+
+      <!-- Body -->
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;"><i class="fas fa-align-left"></i> Message Body</label>
+        <textarea class="ta" id="em-body" rows="5" placeholder="Write your email message here… You can include links like: https://example.com"></textarea>
+      </div>
+
+      <!-- Optional Link -->
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px;"><i class="fas fa-link"></i> Optional CTA Link</label>
+        <div style="display:flex;gap:8px;">
+          <input class="inp" type="text" id="em-link-text" placeholder="Button text (e.g. Open ChatCity)" style="font-size:13px;padding:9px 14px;flex:1;">
+          <input class="inp" type="url" id="em-link-url" placeholder="https://…" style="font-size:13px;padding:9px 14px;flex:1;">
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" id="send-em-btn" onclick="sendCustomEmail()"><i class="fas fa-paper-plane"></i> Send Email</button>
+      <div id="em-msg" style="text-align:center;font-size:13px;min-height:16px;"></div>
+
+      <!-- History -->
       <div style="margin-top:20px;">
-        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;"><i class="fas fa-history"></i> Past Broadcasts</div>
-        <div id="bc-history"></div>
+        <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px;"><i class="fas fa-history"></i> Sent Email History</div>
+        <div id="em-history"></div>
       </div>
     </div>
   </div>
 
-  <!-- ERRORS TAB -->
+  <!-- BROADCAST -->
+  <div class="tab-pane" id="tab-broadcast">
+    <div style="padding:14px;">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--text2);"><i class="fas fa-bullhorn" style="color:var(--accent);"></i> Broadcast Message to All Users (Chat)</div>
+      <textarea class="ta" id="bc-msg" rows="4" placeholder="Broadcast message sent to all users' chats…" style="margin-bottom:12px;"></textarea>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:14px;" onclick="sendBroadcast()"><i class="fas fa-paper-plane"></i> Send to All Chats</button>
+      <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:16px;"><i class="fas fa-info-circle"></i> Sends a chat message to all registered users</div>
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;"><i class="fas fa-history"></i> Broadcast History</div>
+      <div id="bc-history"></div>
+    </div>
+  </div>
+
+  <!-- ERRORS -->
   <div class="tab-pane" id="tab-errors">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);">
-      <span style="font-size:13px;font-weight:700;color:var(--text2);"><i class="fas fa-bug"></i> Error Logs</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <span style="font-size:12px;font-weight:700;color:var(--text2);"><i class="fas fa-bug"></i> Error Logs</span>
       <button class="action-btn danger" onclick="clearErrors()"><i class="fas fa-trash"></i> Clear All</button>
     </div>
     <div id="errors-list"></div>
   </div>
 
-  <!-- LOGS TAB -->
+  <!-- LOGS -->
   <div class="tab-pane" id="tab-logs">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);">
-      <span style="font-size:13px;font-weight:700;color:var(--text2);"><i class="fas fa-list"></i> Admin Action Logs</span>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <span style="font-size:12px;font-weight:700;color:var(--text2);"><i class="fas fa-list"></i> Admin Action Logs</span>
       <button class="action-btn" onclick="loadLogs()"><i class="fas fa-rotate-right"></i></button>
     </div>
     <div id="logs-list"></div>
@@ -217,30 +267,35 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
 <script type="module">
 import {
   auth, db, ref, get, set, push, onValue, remove,
-  onAuthStateChanged, signInWithEmailAndPassword, signOut,
+  onAuthStateChanged,
   colorFor, initialsOf, fmtTime, fmtDate,
   toast, go, ADMIN_EMAIL, ADMIN_PASS, ADMIN_UID
 } from './firebase.js';
 
+const BASE_URL  = window.location.href.replace(/[^/]*$/, '');
+const API_BASE  = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
+  ? 'http://localhost:3001'
+  : 'https://chatcity-api.onrender.com'; // ← replace with your server URL
+
 let allUsers={}, chatTarget=null, chatListener=null;
-let adminLoggedIn=false;
+let selectedRecip=new Set();
 window.go=go;
 
-// ── ADMIN LOGIN ──
-window.adminLogin=async()=>{
+// ══════════════════════════════════
+// ADMIN LOGIN
+// ══════════════════════════════════
+window.adminLogin = async () => {
   const email=document.getElementById('a-email').value.trim();
   const pass=document.getElementById('a-pass').value;
   if(email!==ADMIN_EMAIL||pass!==ADMIN_PASS){
-    document.getElementById('a-err').textContent='❌ Invalid credentials';return;
+    document.getElementById('a-err').textContent='❌ Invalid credentials'; return;
   }
-  adminLoggedIn=true;
   document.getElementById('admin-login').style.display='none';
   document.getElementById('admin-root').style.display='flex';
   await loadAll();
 };
 
-window.adminLogout=()=>{
-  adminLoggedIn=false;
+window.adminLogout = () => {
   document.getElementById('admin-login').style.display='flex';
   document.getElementById('admin-root').style.display='none';
 };
@@ -251,152 +306,191 @@ async function loadAll() {
   await loadErrors();
   await loadLogs();
   await loadBcHistory();
+  await loadEmailHistory();
+  loadEmailStats();
 }
 
-window.refreshAll=loadAll;
-
-// ── STATS ──
+// ══════════════════════════════════
+// STATS
+// ══════════════════════════════════
 async function loadStats() {
-  const [usersSnap,chatsSnap,bannedSnap]=await Promise.all([
+  const [uSnap,cSnap,bSnap] = await Promise.all([
     get(ref(db,'users')), get(ref(db,'chats')), get(ref(db,'admin/banned'))
   ]);
-  const users=usersSnap.val()||{};
-  const chats=chatsSnap.val()||{};
-  const banned=bannedSnap.val()||{};
-  allUsers=users;
+  allUsers=uSnap.val()||{};
+  const banned=bSnap.val()||{};
+  const onlineCount=Object.values(allUsers).filter(u=>u.online).length;
+  const bannedCount=Object.keys(banned).filter(k=>banned[k]===true).length;
 
-  const online=Object.values(users).filter(u=>u.online).length;
-  const bannedCount=Object.keys(banned).filter(uid=>banned[uid]===true).length;
-
-  document.getElementById('s-total').textContent=Object.keys(users).length;
-  document.getElementById('s-online').textContent=online;
-  document.getElementById('s-chats').textContent=Object.keys(chats).length;
+  document.getElementById('s-total').textContent=Object.keys(allUsers).length;
+  document.getElementById('s-online').textContent=onlineCount;
+  document.getElementById('s-chats').textContent=Object.keys(cSnap.val()||{}).length;
   document.getElementById('s-banned').textContent=bannedCount;
 
-  // Recent signups
-  const sorted=Object.entries(users).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).slice(0,5);
-  const el=document.getElementById('recent-users');
-  el.innerHTML=sorted.map(([uid,u])=>`
-    <div style="display:flex;align-items:center;gap:10px;">
-      <div style="width:36px;height:36px;border-radius:50%;background:${u.color||colorFor(uid)};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;color:#fff;">${u.initials||'?'}</div>
-      <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">${u.name||'Unknown'}</div><div style="font-size:11px;color:var(--text3);">${u.email||''}</div></div>
+  const sorted=Object.entries(allUsers).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).slice(0,5);
+  document.getElementById('recent-users').innerHTML=sorted.map(([uid,u])=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <div style="width:34px;height:34px;border-radius:50%;background:${u.color||colorFor(uid)};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;color:#fff;">${u.photo?`<img src="${u.photo}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;">`:(u.initials||'?')}</div>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:700;">${u.name||'Unknown'}</div><div style="font-size:11px;color:var(--text3);">${u.email||''}</div></div>
       <span style="font-size:11px;color:var(--text3);">${u.createdAt?fmtDate(u.createdAt):''}</span>
     </div>`).join('');
 }
 
-// ── USERS ──
-async function loadUsers() {
-  const snap=await get(ref(db,'users'));
-  allUsers=snap.val()||{};
-  const bannedSnap=await get(ref(db,'admin/banned'));
-  const banned=bannedSnap.val()||{};
-  const warnSnap=await get(ref(db,'admin/warnings'));
-  const warned=warnSnap.val()||{};
+async function loadEmailStats() {
+  const snap=await get(ref(db,'admin/emailsSent'));
+  const total=snap.val()||0;
+  const histSnap=await get(ref(db,'admin/emailHistory'));
+  let histCount=0; histSnap.forEach(()=>histCount++);
+  document.getElementById('email-stats').innerHTML=`
+    <div style="display:flex;gap:20px;flex-wrap:wrap;">
+      <div><span style="font-size:22px;font-weight:800;color:var(--accent);">${total}</span><div style="font-size:11px;color:var(--text3);">Total Sent</div></div>
+      <div><span style="font-size:22px;font-weight:800;color:var(--green);">${histCount}</span><div style="font-size:11px;color:var(--text3);">Campaigns</div></div>
+    </div>`;
+}
 
+// ══════════════════════════════════
+// USERS
+// ══════════════════════════════════
+async function loadUsers() {
+  const bSnap=await get(ref(db,'admin/banned'));
+  const wSnap=await get(ref(db,'admin/warnings'));
+  const banned=bSnap.val()||{};
+  const warned=wSnap.val()||{};
   const list=document.getElementById('users-list');
-  list.innerHTML='';
   const chatList=document.getElementById('chat-user-list');
-  chatList.innerHTML='';
+  const recipList=document.getElementById('recip-list');
+  list.innerHTML=''; chatList.innerHTML=''; recipList.innerHTML='';
 
   Object.entries(allUsers).sort((a,b)=>(a[1].name||'').localeCompare(b[1].name||'')).forEach(([uid,u])=>{
     const isBanned=banned[uid]===true;
     const isWarned=warned[uid]===true;
+
+    // User row
     const row=document.createElement('div');
-    row.className='user-row';
-    row.dataset.name=(u.name||'').toLowerCase();
+    row.className='user-row'; row.dataset.name=(u.name||'').toLowerCase();
     row.innerHTML=`
       <div class="u-av av" style="background:${u.color||colorFor(uid)};color:#fff;">${u.photo?`<img src="${u.photo}" alt="">`:u.initials||'?'}</div>
       <div class="u-info">
-        <div class="u-name">${u.name||'User'} ${isBanned?'<span class="u-badge badge-banned">BANNED</span>':''} ${isWarned?'<span class="u-badge badge-warned">WARNED</span>':''}</div>
-        <div class="u-sub"><i class="fas fa-envelope" style="font-size:9px;"></i> ${u.email||''}</div>
-        <div class="u-sub"><i class="fas fa-circle" style="font-size:8px;color:${u.online?'var(--green)':'var(--text3)'}"></i> ${u.online?'Online':'Offline'} &nbsp;·&nbsp; <i class="fas fa-hashtag" style="font-size:9px;"></i> ${u.code||'—'}</div>
+        <div class="u-name">${u.name||'User'}${isBanned?'<span class="u-badge badge-banned">BANNED</span>':''}${isWarned?'<span class="u-badge" style="background:rgba(247,201,75,.15);color:var(--yellow);">WARNED</span>':''}</div>
+        <div class="u-sub"><i class="fas fa-envelope" style="font-size:9px;"></i> ${u.email||''} &nbsp;·&nbsp; <i class="fas fa-circle" style="font-size:8px;color:${u.online?'var(--green)':'var(--text3)'}"></i> ${u.online?'Online':'Offline'}</div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:4px;">
+      <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
         <button class="action-btn" onclick="openUserModal('${uid}')"><i class="fas fa-eye"></i></button>
         ${isBanned?`<button class="action-btn ok" onclick="unbanUser('${uid}')"><i class="fas fa-unlock"></i></button>`:`<button class="action-btn danger" onclick="banUser('${uid}')"><i class="fas fa-ban"></i></button>`}
+        <button class="action-btn warn" onclick="warnUser('${uid}')"><i class="fas fa-triangle-exclamation"></i></button>
       </div>`;
     list.appendChild(row);
 
-    // Chat user list
+    // Chat list
     const cu=document.createElement('div');
     cu.className='cu-item';
-    cu.innerHTML=`<div style="width:32px;height:32px;border-radius:50%;background:${u.color||colorFor(uid)};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;color:#fff;">${u.initials||'?'}</div><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.name||'User'}</div><div style="width:7px;height:7px;border-radius:50%;background:${u.online?'var(--green)':'var(--text3)'};display:inline-block;"></div></div>`;
+    cu.innerHTML=`<div style="width:30px;height:30px;border-radius:50%;background:${u.color||colorFor(uid)};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#fff;">${u.initials||'?'}</div><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.name||'User'}</div><div style="width:7px;height:7px;border-radius:50%;background:${u.online?'var(--green)':'var(--text3)'};display:inline-block;margin-top:2px;"></div></div>`;
     cu.onclick=()=>openAdminChat(uid,u,cu);
     chatList.appendChild(cu);
+
+    // Recipient list (email tab)
+    const rc=document.createElement('div');
+    rc.className='user-check';
+    rc.innerHTML=`<input type="checkbox" id="rc-${uid}" value="${uid}" onchange="toggleRecip('${uid}')">
+      <label for="rc-${uid}" style="flex:1;cursor:pointer;display:flex;align-items:center;gap:8px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:${u.color||colorFor(uid)};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;color:#fff;">${u.initials||'?'}</div>
+        <div><div style="font-size:12px;font-weight:700;">${u.name||'User'}</div><div style="font-size:11px;color:var(--text3);">${u.email||''}</div></div>
+      </label>`;
+    recipList.appendChild(rc);
   });
+
+  updateRecipCount();
 }
 
-window.filterUsers=()=>{
+window.filterUsers = () => {
   const q=document.getElementById('user-search').value.toLowerCase();
-  document.querySelectorAll('.user-row').forEach(r=>{
-    r.style.display=(!q||r.dataset.name.includes(q))?'':'none';
-  });
+  document.querySelectorAll('.user-row').forEach(r=>{ r.style.display=(!q||r.dataset.name.includes(q))?'':'none'; });
 };
 
-// ── USER MODAL ──
-window.openUserModal=async uid=>{
+// ══════════════════════════════════
+// USER MODAL
+// ══════════════════════════════════
+window.openUserModal = async uid => {
   const u=allUsers[uid]||{};
-  const bannedSnap=await get(ref(db,`admin/banned/${uid}`));
-  const isBanned=bannedSnap.val()===true;
+  const bSnap=await get(ref(db,`admin/banned/${uid}`));
+  const isBanned=bSnap.val()===true;
   document.getElementById('user-modal-body').innerHTML=`
-    <div style="text-align:center;padding:16px 0 20px;">
-      <div style="width:72px;height:72px;border-radius:50%;background:${u.color||colorFor(uid)};display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;margin:0 auto 12px;overflow:hidden;">${u.photo?`<img src="${u.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(u.initials||'?')}</div>
+    <div style="text-align:center;padding:14px 0 18px;">
+      <div style="width:68px;height:68px;border-radius:50%;background:${u.color||colorFor(uid)};display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;margin:0 auto 12px;overflow:hidden;">${u.photo?`<img src="${u.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:u.initials||'?'}</div>
       <div style="font-size:18px;font-weight:800;">${u.name||'Unknown'}</div>
       <div style="font-size:12px;color:var(--text2);margin-top:4px;">${u.email||''}</div>
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;">
-        <span class="u-badge ${u.online?'badge-online':'badge-offline'}" style="padding:4px 12px;border-radius:10px;">${u.online?'🟢 Online':'⚫ Offline'}</span>
-        ${isBanned?'<span class="u-badge badge-banned" style="padding:4px 12px;border-radius:10px;">🚫 Banned</span>':''}
-        ${u.code?`<span class="u-badge" style="padding:4px 12px;border-radius:10px;background:rgba(124,110,255,0.15);color:var(--accent);">#${u.code}</span>`:''}
+      <div style="display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap;">
+        <span style="background:${u.online?'rgba(45,212,160,.15)':'var(--bg3)'};color:${u.online?'var(--green)':'var(--text3)'};padding:4px 10px;border-radius:10px;font-size:11px;font-weight:700;">${u.online?'🟢 Online':'⚫ Offline'}</span>
+        ${isBanned?'<span style="background:rgba(255,83,112,.15);color:var(--red);padding:4px 10px;border-radius:10px;font-size:11px;font-weight:700;">🚫 Banned</span>':''}
+        ${u.code?`<span style="background:rgba(124,110,255,.15);color:var(--accent);padding:4px 10px;border-radius:10px;font-size:11px;font-weight:700;">#${u.code}</span>`:''}
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      ${isBanned?`<button class="btn" style="width:100%;background:rgba(45,212,160,0.15);color:var(--green);border:1px solid rgba(45,212,160,0.3);" onclick="unbanUser('${uid}');document.getElementById('user-modal').classList.remove('show');"><i class="fas fa-unlock"></i> Unban User</button>`:`<button class="btn btn-danger" style="width:100%;" onclick="banUser('${uid}');document.getElementById('user-modal').classList.remove('show');"><i class="fas fa-ban"></i> Ban User</button>`}
-      <button class="btn" style="width:100%;background:rgba(247,201,75,0.15);color:var(--yellow);border:1px solid rgba(247,201,75,0.3);" onclick="warnUser('${uid}')"><i class="fas fa-triangle-exclamation"></i> Send Warning</button>
-      <button class="btn btn-primary" style="width:100%;" onclick="openAdminChatById('${uid}')"><i class="fas fa-comment"></i> Message User</button>
+      ${isBanned?`<button class="btn" style="width:100%;background:rgba(45,212,160,.15);color:var(--green);border:1px solid rgba(45,212,160,.3);" onclick="unbanUser('${uid}');document.getElementById('user-modal').classList.remove('show');"><i class="fas fa-unlock"></i> Unban User</button>`:
+        `<button class="btn btn-danger" style="width:100%;" onclick="banUser('${uid}');document.getElementById('user-modal').classList.remove('show');"><i class="fas fa-ban"></i> Ban User</button>`}
+      <button class="btn" style="width:100%;background:rgba(247,201,75,.12);color:var(--yellow);border:1px solid rgba(247,201,75,.25);" onclick="warnUser('${uid}')"><i class="fas fa-triangle-exclamation"></i> Send Warning</button>
+      <button class="btn btn-primary" style="width:100%;" onclick="openAdminChatFromModal('${uid}')"><i class="fas fa-comment"></i> Message User (Chat)</button>
+      <button class="btn" style="width:100%;background:rgba(45,212,160,.1);color:var(--green);border:1px solid rgba(45,212,160,.2);" onclick="quickEmail('${uid}')"><i class="fas fa-envelope"></i> Send Email</button>
       <button class="btn btn-danger" style="width:100%;" onclick="deleteUser('${uid}')"><i class="fas fa-trash"></i> Delete User</button>
     </div>`;
   document.getElementById('user-modal').classList.add('show');
 };
+
 document.getElementById('user-modal').addEventListener('click',e=>{ if(e.target.id==='user-modal') e.target.classList.remove('show'); });
 
-window.banUser=async uid=>{
+window.banUser = async uid => {
   if(!confirm('Ban this user?')) return;
   await set(ref(db,`admin/banned/${uid}`),true);
-  await logAction('BAN',uid);
-  toast('User banned','ok'); await loadUsers();
+  await logAction('BAN',uid); toast('User banned','ok'); await loadAll();
 };
-window.unbanUser=async uid=>{
+window.unbanUser = async uid => {
   await set(ref(db,`admin/banned/${uid}`),null);
-  await logAction('UNBAN',uid);
-  toast('User unbanned','ok'); await loadUsers();
+  await logAction('UNBAN',uid); toast('User unbanned','ok'); await loadAll();
 };
-window.warnUser=async uid=>{
+window.warnUser = async uid => {
+  const u=allUsers[uid]||{};
   await set(ref(db,`admin/warnings/${uid}`),true);
-  // Send system message to user
-  const r=push(ref(db,`chats/admin__${uid}/messages`));
-  await set(r,{ id:r.key,senderId:ADMIN_UID,ts:Date.now(),type:'text',text:'⚠️ Warning: Your account has received a warning for violating ChatCity terms. Further violations may result in a permanent ban.',seen:false });
-  await logAction('WARN',uid);
-  toast('Warning sent','ok');
+  const r=push(ref(db,`chats/${ADMIN_UID}__${uid}/messages`));
+  await set(r,{id:r.key,senderId:ADMIN_UID,ts:Date.now(),type:'text',text:'⚠️ Warning: Your account has received a warning for violating ChatCity terms of service. Further violations may result in a permanent ban.',seen:false});
+  if(u.email) {
+    sendBrevoEmail(u.email, u.name||'User', '⚠️ ChatCity Account Warning', warningEmailHtml(u.name||'User'));
+  }
+  await logAction('WARN',uid); toast('Warning sent','ok');
 };
-window.deleteUser=async uid=>{
-  if(!confirm('Permanently delete this user? This cannot be undone.')) return;
+window.deleteUser = async uid => {
+  if(!confirm('Delete this user permanently?')) return;
   await set(ref(db,`users/${uid}`),null);
   await set(ref(db,`search/users/${uid}`),null);
-  await logAction('DELETE',uid);
-  toast('User deleted','ok');
+  await logAction('DELETE',uid); toast('User deleted','ok');
   document.getElementById('user-modal').classList.remove('show');
-  await loadUsers();
+  await loadAll();
 };
-window.openAdminChatById=uid=>{ document.getElementById('user-modal').classList.remove('show'); switchTab('messages'); const u=allUsers[uid]||{}; openAdminChat(uid,u,null); };
 
-// ── ADMIN CHAT ──
+window.openAdminChatFromModal = uid => {
+  document.getElementById('user-modal').classList.remove('show');
+  switchTab('chat');
+  const u=allUsers[uid]||{}; openAdminChat(uid,u,null);
+};
+
+window.quickEmail = uid => {
+  document.getElementById('user-modal').classList.remove('show');
+  switchTab('email');
+  selectedRecip.clear();
+  selectedRecip.add(uid);
+  document.querySelectorAll('#recip-list input[type=checkbox]').forEach(cb=>{ cb.checked=cb.value===uid; });
+  updateRecipCount();
+};
+
+// ══════════════════════════════════
+// ADMIN CHAT
+// ══════════════════════════════════
 function openAdminChat(uid,u,btn) {
-  document.querySelectorAll('.cu-item').forEach(el=>el.classList.remove('selected'));
-  if(btn) btn.classList.add('selected');
+  document.querySelectorAll('.cu-item').forEach(e=>e.classList.remove('sel'));
+  if(btn) btn.classList.add('sel');
   chatTarget={uid,...u};
   document.getElementById('chat-placeholder').style.display='none';
   document.getElementById('chat-area').style.display='flex';
-  document.getElementById('chat-input-row').style.display='flex';
+  document.getElementById('chat-irow').style.display='flex';
   if(chatListener) chatListener();
   const area=document.getElementById('chat-area');
   area.innerHTML='';
@@ -405,41 +499,156 @@ function openAdminChat(uid,u,btn) {
     snap.forEach(c=>{
       const m=c.val();
       const div=document.createElement('div');
-      const isAdmin=m.senderId===ADMIN_UID;
-      div.className=`a-msg ${isAdmin?'admin':'user'}`;
-      div.innerHTML=`${m.text||''}<div style="font-size:10px;opacity:.6;margin-top:3px;text-align:${isAdmin?'right':'left'}">${fmtTime(m.ts)}</div>`;
+      div.className=`a-msg ${m.senderId===ADMIN_UID?'admin':'user'}`;
+      div.innerHTML=`${m.text||''}<div style="font-size:10px;opacity:.55;margin-top:3px;text-align:${m.senderId===ADMIN_UID?'right':'left'}">${fmtTime(m.ts)}</div>`;
       area.appendChild(div);
     });
     area.scrollTop=area.scrollHeight;
   });
 }
 
-window.sendAdminMsg=async()=>{
+window.sendAdminMsg = async () => {
   if(!chatTarget) return;
   const inp=document.getElementById('a-msg-inp');
   const text=inp.value.trim(); if(!text) return;
   inp.value='';
-  const chatId=`${ADMIN_UID}__${chatTarget.uid}`;
-  const r=push(ref(db,`chats/${chatId}/messages`));
-  await set(r,{ id:r.key,senderId:ADMIN_UID,ts:Date.now(),type:'text',text,seen:false });
+  const r=push(ref(db,`chats/${ADMIN_UID}__${chatTarget.uid}/messages`));
+  await set(r,{id:r.key,senderId:ADMIN_UID,ts:Date.now(),type:'text',text,seen:false});
 };
 
-// ── BROADCAST ──
-window.sendBroadcast=async()=>{
+// ══════════════════════════════════
+// EMAIL (Custom) — Brevo
+// ══════════════════════════════════
+window.toggleRecip = uid => {
+  const cb=document.getElementById(`rc-${uid}`);
+  if(cb.checked) selectedRecip.add(uid); else selectedRecip.delete(uid);
+  updateRecipCount();
+};
+
+window.selectAllRecip = () => {
+  selectedRecip.clear();
+  document.querySelectorAll('#recip-list input[type=checkbox]').forEach(cb=>{ cb.checked=true; selectedRecip.add(cb.value); });
+  updateRecipCount();
+};
+
+window.clearRecip = () => {
+  selectedRecip.clear();
+  document.querySelectorAll('#recip-list input[type=checkbox]').forEach(cb=>cb.checked=false);
+  updateRecipCount();
+};
+
+function updateRecipCount() {
+  document.getElementById('recip-count').textContent = selectedRecip.size ? `${selectedRecip.size} recipient${selectedRecip.size>1?'s':''} selected` : 'No recipients selected';
+}
+
+async function sendBrevoEmail(toEmail, toName, subject, html) {
+  try {
+    const res=await fetch(`${API_BASE}/api/send-email`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ to:toEmail, toName, subject, html })
+    });
+    return res.ok;
+  } catch(e){ console.warn('Brevo proxy error:',e); return false; }
+}
+
+function buildCustomEmail(name, body, linkText, linkUrl) {
+  const linkHtml = linkText && linkUrl
+    ? `<a href="${linkUrl}" style="display:block;background:linear-gradient(135deg,#7c6eff,#9d8fff);color:#fff;text-decoration:none;padding:14px;border-radius:12px;text-align:center;font-weight:800;font-size:15px;margin-top:18px;">${linkText}</a>`
+    : '';
+  // Convert newlines to <br> and auto-link URLs
+  const formatted = body.replace(/\n/g,'<br>').replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" style="color:#7c6eff;">$1</a>');
+  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#09090f;font-family:'Segoe UI',Arial,sans-serif;">
+<div style="max-width:580px;margin:0 auto;padding:28px 16px;">
+  <div style="background:linear-gradient(135deg,#7c6eff,#9d8fff);border-radius:20px;padding:28px;text-align:center;margin-bottom:20px;">
+    <div style="font-size:40px;margin-bottom:8px;">💬</div>
+    <h1 style="color:#fff;font-size:22px;margin:0;font-weight:800;">ChatCity</h1>
+  </div>
+  <div style="background:#0f0f1a;border:1px solid rgba(124,110,255,.2);border-radius:18px;padding:26px;margin-bottom:16px;">
+    <p style="color:#9494bb;font-size:14px;margin:0 0 4px;">Hi <strong style="color:#f0f0ff;">${name}</strong>,</p>
+    <div style="color:#c8c8e8;font-size:14px;line-height:1.75;margin-top:14px;">${formatted}</div>
+    ${linkHtml}
+  </div>
+  <div style="text-align:center;color:#4a4a6a;font-size:12px;line-height:1.9;">
+    <p style="margin:0;">Developed By <strong style="color:#7c6eff;">Mr. Abuhurira</strong> 💙🎀</p>
+    <p style="margin:0;">— ChatCity Team</p>
+  </div>
+</div></body></html>`;
+}
+
+function warningEmailHtml(name) {
+  return buildCustomEmail(name, '⚠️ Your ChatCity account has received a warning for violating our Terms of Service.\n\nPlease review your activity and ensure you follow community guidelines. Further violations may result in a permanent ban.', 'Read Community Guidelines', BASE_URL+'index.html');
+}
+
+window.sendCustomEmail = async () => {
+  const subject  = document.getElementById('em-subject').value.trim();
+  const body     = document.getElementById('em-body').value.trim();
+  const linkText = document.getElementById('em-link-text').value.trim();
+  const linkUrl  = document.getElementById('em-link-url').value.trim();
+  const msgEl    = document.getElementById('em-msg');
+  const btn      = document.getElementById('send-em-btn');
+
+  if(!subject){ msgEl.innerHTML='<span style="color:var(--red);">Please enter a subject</span>'; return; }
+  if(!body){ msgEl.innerHTML='<span style="color:var(--red);">Please enter message body</span>'; return; }
+  if(selectedRecip.size===0){ msgEl.innerHTML='<span style="color:var(--red);">Please select at least one recipient</span>'; return; }
+
+  if(!confirm(`Send email to ${selectedRecip.size} recipient(s)?`)) return;
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending…'; btn.disabled=true;
+  msgEl.innerHTML='';
+
+  let sent=0, failed=0;
+  for(const uid of selectedRecip) {
+    const u=allUsers[uid]; if(!u?.email) continue;
+    const html=buildCustomEmail(u.name||'User', body, linkText, linkUrl);
+    const ok=await sendBrevoEmail(u.email, u.name||'User', subject, html);
+    if(ok) sent++; else failed++;
+    // small delay to avoid rate limit
+    await new Promise(r=>setTimeout(r,120));
+  }
+
+  // Log
+  const r=push(ref(db,'admin/emailHistory'));
+  await set(r,{subject,body,recipients:sent+failed,sent,failed,ts:Date.now()});
+  const cur=(await get(ref(db,'admin/emailsSent'))).val()||0;
+  await set(ref(db,'admin/emailsSent'),cur+sent);
+
+  await logAction('EMAIL',`sent=${sent},failed=${failed}`);
+  msgEl.innerHTML=`<span style="color:var(--green);"><i class="fas fa-circle-check"></i> Sent to ${sent} users${failed?` (${failed} failed)`:''}</span>`;
+  toast(`Email sent to ${sent} users!`,'ok');
+  btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Email'; btn.disabled=false;
+  loadEmailHistory();
+  loadEmailStats();
+};
+
+async function loadEmailHistory() {
+  const snap=await get(ref(db,'admin/emailHistory'));
+  const el=document.getElementById('em-history');
+  el.innerHTML='';
+  const items=[];
+  snap.forEach(c=>items.unshift({key:c.key,...c.val()}));
+  if(!items.length){ el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px;">No emails sent yet</div>'; return; }
+  items.slice(0,20).forEach(e=>{
+    el.innerHTML+=`<div style="background:var(--bg3);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:3px;">${e.subject}</div>
+      <div style="font-size:11px;color:var(--text3);"><i class="fas fa-users"></i> ${e.recipients} recipients &nbsp;·&nbsp; ✅ ${e.sent} sent${e.failed?` &nbsp;·&nbsp; ❌ ${e.failed} failed`:''} &nbsp;·&nbsp; ${fmtDate(e.ts)} ${fmtTime(e.ts)}</div>
+    </div>`;
+  });
+}
+
+// ══════════════════════════════════
+// BROADCAST (chat)
+// ══════════════════════════════════
+window.sendBroadcast = async () => {
   const msg=document.getElementById('bc-msg').value.trim();
   if(!msg){ toast('Enter a message','error'); return; }
-  if(!confirm(`Send broadcast to all users?\n\n"${msg}"`)) return;
-  const usersSnap=await get(ref(db,'users'));
-  const users=usersSnap.val()||{};
+  if(!confirm(`Send broadcast to all ${Object.keys(allUsers).length} users?`)) return;
   let count=0;
-  for(const uid of Object.keys(users)) {
-    const chatId=`${ADMIN_UID}__${uid}`;
-    const r=push(ref(db,`chats/${chatId}/messages`));
-    await set(r,{ id:r.key,senderId:ADMIN_UID,ts:Date.now(),type:'text',text:`📢 Broadcast: ${msg}`,seen:false });
+  for(const uid of Object.keys(allUsers)) {
+    const r=push(ref(db,`chats/${ADMIN_UID}__${uid}/messages`));
+    await set(r,{id:r.key,senderId:ADMIN_UID,ts:Date.now(),type:'text',text:`📢 Broadcast: ${msg}`,seen:false});
     count++;
   }
-  // Save broadcast history
-  await push(ref(db,'admin/broadcasts'),{ msg, ts:Date.now(), count });
+  await push(ref(db,'admin/broadcasts'),{msg,ts:Date.now(),count});
   toast(`Broadcast sent to ${count} users!`,'ok');
   document.getElementById('bc-msg').value='';
   loadBcHistory();
@@ -454,51 +663,52 @@ async function loadBcHistory() {
   items.slice(0,10).forEach(b=>{
     el.innerHTML+=`<div style="background:var(--bg3);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;"><div style="font-size:13px;margin-bottom:4px;">${b.msg}</div><div style="font-size:11px;color:var(--text3);"><i class="fas fa-clock"></i> ${fmtDate(b.ts)} ${fmtTime(b.ts)} &nbsp;·&nbsp; <i class="fas fa-users"></i> ${b.count} users</div></div>`;
   });
-  if(!items.length) el.innerHTML='<div style="text-align:center;color:var(--text3);padding:20px;font-size:13px;">No broadcasts yet</div>';
+  if(!items.length) el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px;">No broadcasts yet</div>';
 }
 
-// ── ERRORS ──
+// ══════════════════════════════════
+// ERRORS
+// ══════════════════════════════════
 async function loadErrors() {
   const snap=await get(ref(db,'admin/errors'));
   const list=document.getElementById('errors-list');
   list.innerHTML='';
   const items=[];
   snap.forEach(c=>items.unshift({key:c.key,...c.val()}));
-  if(!items.length){ list.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px;font-size:13px;"><i class="fas fa-check-circle" style="font-size:32px;color:var(--green);display:block;margin-bottom:10px;opacity:.5;"></i>No errors logged</div>'; return; }
+  if(!items.length){ list.innerHTML='<div style="text-align:center;color:var(--text3);padding:36px;font-size:13px;"><i class="fas fa-check-circle" style="font-size:28px;color:var(--green);display:block;margin-bottom:10px;opacity:.5;"></i>No errors logged</div>'; return; }
   items.slice(0,50).forEach(e=>{
-    list.innerHTML+=`<div class="err-item"><div class="err-msg"><i class="fas fa-triangle-exclamation"></i> ${e.error||'Unknown error'}</div><div class="err-time"><i class="fas fa-map-marker-alt"></i> ${e.context||'—'} &nbsp;·&nbsp; ${fmtDate(e.ts)} ${fmtTime(e.ts)}</div></div>`;
+    list.innerHTML+=`<div class="err-item"><div class="err-msg"><i class="fas fa-triangle-exclamation"></i> ${e.error||'Unknown error'}</div><div class="err-time"><i class="fas fa-map-marker-alt"></i> ${e.context||'—'} &nbsp;·&nbsp; ${e.ts?fmtDate(e.ts)+' '+fmtTime(e.ts):'—'}</div></div>`;
   });
 }
-window.clearErrors=async()=>{
+window.clearErrors = async () => {
   if(!confirm('Clear all error logs?')) return;
-  await set(ref(db,'admin/errors'),null);
-  await loadErrors();
-  toast('Errors cleared','ok');
+  await set(ref(db,'admin/errors'),null); await loadErrors(); toast('Errors cleared','ok');
 };
 
-// ── LOGS ──
-async function logAction(action, uid) {
-  await push(ref(db,'admin/logs'),{ action, uid, ts:Date.now(), admin:ADMIN_EMAIL });
+// ══════════════════════════════════
+// LOGS
+// ══════════════════════════════════
+async function logAction(action,detail) {
+  await push(ref(db,'admin/logs'),{action,detail:String(detail),ts:Date.now(),admin:ADMIN_EMAIL});
 }
-window.loadLogs=async()=>{
+
+window.loadLogs = async () => {
   const snap=await get(ref(db,'admin/logs'));
   const el=document.getElementById('logs-list');
   el.innerHTML='';
-  const items=[];
-  snap.forEach(c=>items.unshift(c.val()));
-  if(!items.length){ el.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px;font-size:13px;">No logs yet</div>'; return; }
+  const items=[]; snap.forEach(c=>items.unshift(c.val()));
+  if(!items.length){ el.innerHTML='<div style="text-align:center;color:var(--text3);padding:36px;font-size:13px;">No logs yet</div>'; return; }
   items.slice(0,100).forEach(l=>{
-    const u=allUsers[l.uid]||{};
-    el.innerHTML+=`<div class="log-item"><span class="log-action">${l.action}</span> &rarr; ${u.name||l.uid||'—'} <span class="log-time">(${fmtDate(l.ts)} ${fmtTime(l.ts)})</span></div>`;
+    el.innerHTML+=`<div class="log-item"><span class="log-action">${l.action}</span> — ${l.detail||'—'} <span class="log-time">(${l.ts?fmtDate(l.ts)+' '+fmtTime(l.ts):'—'})</span></div>`;
   });
 };
 
-// ── TABS ──
-window.switchTab=t=>{
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    const tabs=['overview','users','messages','broadcast','errors','logs'];
-    b.classList.toggle('active',tabs[i]===t);
-  });
+// ══════════════════════════════════
+// TABS
+// ══════════════════════════════════
+window.switchTab = t => {
+  const tabs=['overview','users','chat','email','broadcast','errors','logs'];
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',tabs[i]===t));
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
   document.getElementById(`tab-${t}`).classList.add('active');
 };
