@@ -36,10 +36,11 @@ const ADMIN_UID   = 'admin_system_001';
 const ADMIN_WA    = '8801966061084';
 
 // ── API Keys (injected by GitHub Actions at build time — never exposed in repo) ──
-const _b1='xkeysib-ff43360ded25f9239b891b6d6477681d8077';
-const _b2='7efffba3c69f54d0bd563427bc58-0KAdd3eGP0BFxYYT';
-const BREVO_KEY=_b1+_b2;
-const ABSTRACT_KEY = '3deae27448f549468b9b142eda351e2b';
+// ══ EmailJS Config ══
+const EJS_SERVICE  = 'service_my0s90n';
+const EJS_TEMPLATE = 'template_838ptjb';
+const EJS_PUBLIC   = 'T_l96dQMJhgtaM0Jn';
+
 
 const BASE_URL = window.location.href.replace(/[^/]*$/, '');
 
@@ -101,11 +102,8 @@ const setOnline = async uid => {
  * Validate email via Abstract API (through server proxy)
  */
 const validateEmail = async email => {
-  try {
-    const r = await fetch(`https://emailvalidation.abstractapi.com/v1/?api_key=${ABSTRACT_KEY}&email=${encodeURIComponent(email)}`);
-    const d = await r.json();
-    return d.deliverability === 'DELIVERABLE' && d.is_valid_format?.value === true;
-  } catch { return true; } // fail-open
+  // Simple format check — no external API needed
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
 };
 
 /**
@@ -113,18 +111,25 @@ const validateEmail = async email => {
  */
 const sendBrevoEmail = async (toEmail, toName, subject, html) => {
   try {
-    const r = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'api-key': BREVO_KEY },
-      body:    JSON.stringify({
-        sender:      { name: 'ChatCity', email: 'abuhurirabd71@gmail.com' },
-        to:          [{ email: toEmail, name: toName || toEmail }],
-        subject,
-        htmlContent: html
-      })
+    // Load EmailJS SDK if not loaded
+    if(!window.emailjs) {
+      await new Promise((res,rej) => {
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+        s.onload=res; s.onerror=rej;
+        document.head.appendChild(s);
+      });
+      window.emailjs.init(EJS_PUBLIC);
+    }
+    await window.emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
+      to_email: toEmail,
+      to_name:  toName || toEmail,
+      title:    subject,
+      message:  html,
+      from_name:'ChatCity'
     });
-    return r.ok;
-  } catch(e) { console.warn('[Email] Error:', e); return false; }
+    return true;
+  } catch(e) { console.warn('[EmailJS] Error:', e); return false; }
 };
 
 // ══════════════════════════════════════════════════
