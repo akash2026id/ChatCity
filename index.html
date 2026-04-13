@@ -42,8 +42,6 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
 .forgot-link a { color:var(--accent);font-size:12px;cursor:pointer;text-decoration:underline; }
 .hint-msg { font-size:11px;margin-top:4px;min-height:14px; }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>emailjs.init('T_l96dQMJhgtaM0Jn');</script>
 </head>
 <body>
 <div class="auth-bg"><div class="blob blob1"></div><div class="blob blob2"></div><div class="blob blob3"></div></div>
@@ -174,10 +172,9 @@ import {
 } from './firebase.js';
 
 // ── KEYS ──
-const BASE_URL  = window.location.href.replace(/[^/]*$/, '');
-const EJS_SVC1='service_my0s90n'; const EJS_SVC2='service_khtwewd';
-const EJS_TPL1='template_838ptjb'; const EJS_TPL2='template_lc7s99f';
-const EJS_PUB='T_l96dQMJhgtaM0Jn';
+
+
+const BASE_URL     = window.location.href.replace(/[^/]*$/, '');
 
 let pendingUser = null, pinEntered = '';
 let emailCache = {}, emailTimers = {};
@@ -187,9 +184,13 @@ let emailCache = {}, emailTimers = {};
 // ════════════════════════════════
 async function validateEmail(email) {
   if(emailCache[email] !== undefined) return emailCache[email];
-  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
-  emailCache[email] = ok;
-  return ok;
+  try {
+    const r = await fetch(`// removed?api_key=${ABSTRACT_KEY}&email=${encodeURIComponent(email)}`);
+    const d = await r.json();
+    const ok = d.deliverability === 'DELIVERABLE' && d.is_valid_format?.value === true;
+    emailCache[email] = ok;
+    return ok;
+  } catch { return true; } // fail-open: don't block on API error
 }
 
 window.schedEmailCheck = (inpId, stId) => {
@@ -213,29 +214,16 @@ window.schedEmailCheck = (inpId, stId) => {
 // ════════════════════════════════
 async function sendBrevoEmail(toEmail, toName, subject, html) {
   try {
-    if(typeof emailjs === 'undefined') {
-      await new Promise((res,rej) => {
-        if(document.getElementById('ejs-sdk')){ setTimeout(res,300); return; }
-        const s=document.createElement('script');
-        s.id='ejs-sdk';
-        s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
-        s.onload=()=>{ emailjs.init(EJS_PUB); res(); };
-        s.onerror=rej;
-        document.head.appendChild(s);
-      });
-    }
-    const params={ to_email:toEmail, name:toName||toEmail, title:subject, message:html, email:toEmail };
-    try {
-      await emailjs.send(EJS_SVC1, EJS_TPL1, params);
-      console.log('[Email] ✅ Primary →', toEmail);
-      return true;
-    } catch(e1) {
-      console.warn('[Email] Primary failed, backup...', e1.text||e1);
-      await emailjs.send(EJS_SVC2, EJS_TPL2, params);
-      console.log('[Email] ✅ Backup →', toEmail);
-      return true;
-    }
-  } catch(e){ console.warn('[Email] ❌', e.text||e); return false; }
+    await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'api-key': BREVO_KEY },
+      body: JSON.stringify({
+        sender: { name:'ChatCity', email:'abuhurirabd71@gmail.com' },
+        to: [{ email: toEmail, name: toName }],
+        subject, htmlContent: html
+      })
+    });
+  } catch(e){ console.warn('Brevo error:', e); }
 }
 
 function buildWelcomeEmail(name) {
