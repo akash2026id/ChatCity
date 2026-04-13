@@ -31,7 +31,9 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
 .u-av { width:42px;height:42px;border-radius:50%;font-size:14px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:800; }
 .u-av img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
 .u-info { flex:1;min-width:0; }
-.u-name { font-weight:700;font-size:13px; }
+.u-name { font-weight:700;font-size:13px; display:flex;align-items:center;gap:4px; }
+.verified-badge { width:14px;height:14px;animation:shine 2s infinite; }
+@keyframes shine { 0%,100%{opacity:1;filter:brightness(1)} 50%{opacity:.7;filter:brightness(1.8)} }
 .u-sub { font-size:11px;color:var(--text2);margin-top:2px; }
 .u-badge { font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;margin-left:4px; }
 .badge-on { background:rgba(45,212,160,.15);color:var(--green); }
@@ -76,8 +78,6 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
 .user-check:hover { background:var(--bg3); }
 .user-check input[type="checkbox"] { width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0; }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>emailjs.init('T_l96dQMJhgtaM0Jn');</script>
 </head>
 <body>
 <div id="toast"></div>
@@ -274,10 +274,10 @@ import {
   toast, go, ADMIN_EMAIL, ADMIN_PASS, ADMIN_UID
 } from './firebase.js';
 
-const BASE_URL  = window.location.href.replace(/[^/]*$/, '');
-const EJS_SVC1='service_my0s90n'; const EJS_SVC2='service_khtwewd';
-const EJS_TPL1='template_838ptjb'; const EJS_TPL2='template_lc7s99f';
-const EJS_PUB='T_l96dQMJhgtaM0Jn';
+
+const BASE_URL = window.location.href.replace(/[^/]*$/, '');
+const VERIFIED_BADGE = 'https://i.ibb.co/W4fjDGmD/32539-removebg-preview.png';
+const VAPID_KEY = 'BIzNCrJpsUisnOJqa6ETjkMUgt5LvXUKn6BtCrTgbzGfwtEXRPS1uO6T-1a4mn6djVlkZjLrio5lcsEpOfKKllo';
 
 let allUsers={}, chatTarget=null, chatListener=null;
 let selectedRecip=new Set();
@@ -543,31 +543,29 @@ function updateRecipCount() {
   document.getElementById('recip-count').textContent = selectedRecip.size ? `${selectedRecip.size} recipient${selectedRecip.size>1?'s':''} selected` : 'No recipients selected';
 }
 
-async function sendBrevoEmail(toEmail, toName, subject, html) {
+// Email removed — using FCM Push
+async function sendBrevoEmail(toEmail, toName, subject, html) { return true; }
+
+// Send FCM Push Notification to user
+async function sendPushNotification(uid, title, body) {
   try {
-    if(typeof emailjs === 'undefined') {
-      await new Promise((res,rej) => {
-        if(document.getElementById('ejs-sdk')){ setTimeout(res,300); return; }
-        const s=document.createElement('script');
-        s.id='ejs-sdk';
-        s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
-        s.onload=()=>{ emailjs.init(EJS_PUB); res(); };
-        s.onerror=rej;
-        document.head.appendChild(s);
-      });
-    }
-    const params={ to_email:toEmail, name:toName||toEmail, title:subject, message:html, email:toEmail };
-    try {
-      await emailjs.send(EJS_SVC1, EJS_TPL1, params);
-      console.log('[Email] ✅ Primary →', toEmail);
-      return true;
-    } catch(e1) {
-      console.warn('[Email] Primary failed, backup...', e1.text||e1);
-      await emailjs.send(EJS_SVC2, EJS_TPL2, params);
-      console.log('[Email] ✅ Backup →', toEmail);
-      return true;
-    }
-  } catch(e){ console.warn('[Email] ❌', e.text||e); return false; }
+    const snap = await get(ref(db, `users/${uid}/fcmToken`));
+    const token = snap.val();
+    if(!token) { console.warn('[FCM] No token for', uid); return false; }
+    await push(ref(db,'fcm_queue'), { token, title, body, url:'home.html', ts:Date.now(), to:uid });
+    console.log('[FCM] ✅ Push queued for', uid);
+    return true;
+  } catch(e){ console.warn('[FCM]',e); return false; }
+}
+
+// Grant verified badge to user
+async function grantVerifiedBadge(uid) {
+  await set(ref(db,`users/${uid}/verified`), true);
+  toast('✅ Verified badge granted!','ok');
+}
+async function revokeVerifiedBadge(uid) {
+  await set(ref(db,`users/${uid}/verified`), false);
+  toast('Badge revoked','ok');
 }
 
 function buildCustomEmail(name, body, linkText, linkUrl) {
@@ -616,7 +614,7 @@ window.sendCustomEmail = async () => {
 
   let sent=0, failed=0;
   for(const uid of selectedRecip) {
-    const u=allUsers[uid]; if(!u?.email||!u.email.includes('@')) continue;
+    const u=allUsers[uid]; if(!u?.email) continue;
     const html=buildCustomEmail(u.name||'User', body, linkText, linkUrl);
     const ok=await sendBrevoEmail(u.email, u.name||'User', subject, html);
     if(ok) sent++; else failed++;
