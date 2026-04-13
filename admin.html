@@ -76,6 +76,8 @@ body { display:flex;align-items:center;justify-content:center;padding:20px;overf
 .user-check:hover { background:var(--bg3); }
 .user-check input[type="checkbox"] { width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init('T_l96dQMJhgtaM0Jn');</script>
 </head>
 <body>
 <div id="toast"></div>
@@ -272,8 +274,10 @@ import {
   toast, go, ADMIN_EMAIL, ADMIN_PASS, ADMIN_UID
 } from './firebase.js';
 
-const WORKER_URL = 'https://chatcity-backend.onrender.com';
 const BASE_URL  = window.location.href.replace(/[^/]*$/, '');
+const EJS_SVC1='service_my0s90n'; const EJS_SVC2='service_khtwewd';
+const EJS_TPL1='template_838ptjb'; const EJS_TPL2='template_lc7s99f';
+const EJS_PUB='T_l96dQMJhgtaM0Jn';
 
 let allUsers={}, chatTarget=null, chatListener=null;
 let selectedRecip=new Set();
@@ -541,18 +545,29 @@ function updateRecipCount() {
 
 async function sendBrevoEmail(toEmail, toName, subject, html) {
   try {
-    const res = await fetch(WORKER_URL + '/api/send-email', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ to: toEmail, toName, subject, html })
-    });
-    if(!res.ok) {
-      const err = await res.text();
-      console.warn('Email error:', err);
-      return false;
+    if(typeof emailjs === 'undefined') {
+      await new Promise((res,rej) => {
+        if(document.getElementById('ejs-sdk')){ setTimeout(res,300); return; }
+        const s=document.createElement('script');
+        s.id='ejs-sdk';
+        s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+        s.onload=()=>{ emailjs.init(EJS_PUB); res(); };
+        s.onerror=rej;
+        document.head.appendChild(s);
+      });
     }
-    return true;
-  } catch(e){ console.warn('Email error:',e); return false; }
+    const params={ to_email:toEmail, name:toName||toEmail, title:subject, message:html, email:toEmail };
+    try {
+      await emailjs.send(EJS_SVC1, EJS_TPL1, params);
+      console.log('[Email] ✅ Primary →', toEmail);
+      return true;
+    } catch(e1) {
+      console.warn('[Email] Primary failed, backup...', e1.text||e1);
+      await emailjs.send(EJS_SVC2, EJS_TPL2, params);
+      console.log('[Email] ✅ Backup →', toEmail);
+      return true;
+    }
+  } catch(e){ console.warn('[Email] ❌', e.text||e); return false; }
 }
 
 function buildCustomEmail(name, body, linkText, linkUrl) {
@@ -601,7 +616,7 @@ window.sendCustomEmail = async () => {
 
   let sent=0, failed=0;
   for(const uid of selectedRecip) {
-    const u=allUsers[uid]; if(!u?.email) continue;
+    const u=allUsers[uid]; if(!u?.email||!u.email.includes('@')) continue;
     const html=buildCustomEmail(u.name||'User', body, linkText, linkUrl);
     const ok=await sendBrevoEmail(u.email, u.name||'User', subject, html);
     if(ok) sent++; else failed++;
