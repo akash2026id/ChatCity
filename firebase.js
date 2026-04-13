@@ -36,8 +36,10 @@ const ADMIN_UID   = 'admin_system_001';
 const ADMIN_WA    = '8801966061084';
 
 // ── API Keys (injected by GitHub Actions at build time — never exposed in repo) ──
-// ══ ChatCity Worker URL ══
-const WORKER_URL = 'https://chatcity-backend.onrender.com';
+// ══ EmailJS Config ══
+const EJS_SVC1='service_my0s90n'; const EJS_SVC2='service_khtwewd';
+const EJS_TPL1='template_838ptjb'; const EJS_TPL2='template_lc7s99f';
+const EJS_PUB='T_l96dQMJhgtaM0Jn';
 
 
 const BASE_URL = window.location.href.replace(/[^/]*$/, '');
@@ -106,15 +108,40 @@ const validateEmail = async email => {
 /**
  * Send email via Brevo (through server proxy)
  */
+const _ejsLoad = async () => {
+  if(typeof emailjs !== 'undefined') return;
+  await new Promise((res, rej) => {
+    if(document.getElementById('ejs-sdk')) { setTimeout(res,300); return; }
+    const s = document.createElement('script');
+    s.id = 'ejs-sdk';
+    s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+    s.onload = () => { emailjs.init(EJS_PUB); res(); };
+    s.onerror = rej;
+    document.head.appendChild(s);
+  });
+};
+
 const sendBrevoEmail = async (toEmail, toName, subject, html) => {
   try {
-    const r = await fetch(WORKER_URL + '/api/send-email', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ to: toEmail, toName, subject, html })
-    });
-    return r.ok;
-  } catch(e) { console.warn('[Email] Error:', e); return false; }
+    await _ejsLoad();
+    const params = {
+      to_email: toEmail,
+      name:     toName || toEmail,
+      title:    subject,
+      message:  html,
+      email:    toEmail
+    };
+    try {
+      await emailjs.send(EJS_SVC1, EJS_TPL1, params);
+      console.log('[Email] ✅ Primary sent to', toEmail);
+      return true;
+    } catch(e1) {
+      console.warn('[Email] Primary failed, using backup...', e1.text||e1);
+      await emailjs.send(EJS_SVC2, EJS_TPL2, params);
+      console.log('[Email] ✅ Backup sent to', toEmail);
+      return true;
+    }
+  } catch(e) { console.warn('[Email] ❌ Both failed:', e.text||e); return false; }
 };
 
 // ══════════════════════════════════════════════════
