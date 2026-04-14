@@ -431,8 +431,12 @@ window.openUserModal = async uid => {
       ${isBanned?`<button class="btn" style="width:100%;background:rgba(45,212,160,.15);color:var(--green);border:1px solid rgba(45,212,160,.3);" onclick="unbanUser('${uid}');document.getElementById('user-modal').classList.remove('show');"><i class="fas fa-unlock"></i> Unban User</button>`:
         `<button class="btn btn-danger" style="width:100%;" onclick="banUser('${uid}');document.getElementById('user-modal').classList.remove('show');"><i class="fas fa-ban"></i> Ban User</button>`}
       <button class="btn" style="width:100%;background:rgba(247,201,75,.12);color:var(--yellow);border:1px solid rgba(247,201,75,.25);" onclick="warnUser('${uid}')"><i class="fas fa-triangle-exclamation"></i> Send Warning</button>
-      <button class="btn btn-primary" style="width:100%;" onclick="openAdminChatFromModal('${uid}')"><i class="fas fa-comment"></i> Message User (Chat)</button>
-      <button class="btn" style="width:100%;background:rgba(45,212,160,.1);color:var(--green);border:1px solid rgba(45,212,160,.2);" onclick="quickEmail('${uid}')"><i class="fas fa-envelope"></i> Send Email</button>
+      <button class="btn btn-primary" style="width:100%;" onclick="openAdminChatFromModal('${uid}')"><i class="fas fa-comment"></i> Message User</button>
+      ${u.verified
+        ? `<button class="btn" style="width:100%;background:rgba(247,201,75,.1);color:var(--yellow);border:1px solid rgba(247,201,75,.2);" onclick="revokeVerifiedBadge('${uid}')"><i class="fas fa-badge-check"></i> Revoke Verified Badge</button>`
+        : `<button class="btn" style="width:100%;background:rgba(45,212,160,.1);color:var(--green);border:1px solid rgba(45,212,160,.2);" onclick="grantVerifiedBadge('${uid}')"><i class="fas fa-check-circle"></i> Grant Verified Badge ✅</button>`
+      }
+      <button class="btn" style="width:100%;background:rgba(124,110,255,.1);color:var(--accent);border:1px solid rgba(124,110,255,.2);" onclick="sendUserPush('${uid}')"><i class="fas fa-bell"></i> Send Push Notification</button>
       <button class="btn btn-danger" style="width:100%;" onclick="deleteUser('${uid}')"><i class="fas fa-trash"></i> Delete User</button>
     </div>`;
   document.getElementById('user-modal').classList.add('show');
@@ -545,6 +549,32 @@ function updateRecipCount() {
 
 // Email removed — using FCM Push
 async function sendBrevoEmail(toEmail, toName, subject, html) { return true; }
+
+// Bulk Push to all selected recipients
+async function sendBulkPush() {
+  const subject = document.getElementById('email-subject')?.value?.trim() || 'ChatCity';
+  const body    = document.getElementById('email-body')?.value?.trim() || '';
+  if(!body){ toast('Please enter a message','error'); return; }
+  if(selectedRecip.size===0){ toast('Select at least one recipient','error'); return; }
+  if(!confirm(`Send push notification to ${selectedRecip.size} users?`)) return;
+  let sent=0, failed=0;
+  for(const uid of selectedRecip) {
+    const ok = await sendPushNotification(uid, subject, body);
+    if(ok) sent++; else failed++;
+  }
+  toast(`Push sent to ${sent} users${failed?` (${failed} failed)`:''}`,'ok');
+}
+
+// Send push to single user
+async function sendUserPush(uid) {
+  const title = prompt('Notification title:', 'ChatCity Admin');
+  if(!title) return;
+  const body = prompt('Notification message:');
+  if(!body) return;
+  const ok = await sendPushNotification(uid, title, body);
+  toast(ok ? '✅ Push sent!' : '❌ Failed — user may not have notifications enabled','ok');
+  document.getElementById('user-modal').classList.remove('show');
+}
 
 // Send FCM Push Notification to user
 async function sendPushNotification(uid, title, body) {
