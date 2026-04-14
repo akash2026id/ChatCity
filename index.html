@@ -180,17 +180,13 @@ let pendingUser = null, pinEntered = '';
 let emailCache = {}, emailTimers = {};
 
 // ════════════════════════════════
-// EMAIL VALIDATION — Abstract API
+// EMAIL VALIDATION — Simple regex (fast, no API needed)
 // ════════════════════════════════
 async function validateEmail(email) {
   if(emailCache[email] !== undefined) return emailCache[email];
-  try {
-    const r = await fetch(`// removed?api_key=${ABSTRACT_KEY}&email=${encodeURIComponent(email)}`);
-    const d = await r.json();
-    const ok = d.deliverability === 'DELIVERABLE' && d.is_valid_format?.value === true;
-    emailCache[email] = ok;
-    return ok;
-  } catch { return true; } // fail-open: don't block on API error
+  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+  emailCache[email] = ok;
+  return ok;
 }
 
 window.schedEmailCheck = (inpId, stId) => {
@@ -209,22 +205,8 @@ window.schedEmailCheck = (inpId, stId) => {
   }, 800);
 };
 
-// ════════════════════════════════
-// BREVO — Send Email
-// ════════════════════════════════
-async function sendBrevoEmail(toEmail, toName, subject, html) {
-  try {
-    await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'api-key': BREVO_KEY },
-      body: JSON.stringify({
-        sender: { name:'ChatCity', email:'abuhurirabd71@gmail.com' },
-        to: [{ email: toEmail, name: toName }],
-        subject, htmlContent: html
-      })
-    });
-  } catch(e){ console.warn('Brevo error:', e); }
-}
+// Email notifications removed — using FCM Push
+async function sendBrevoEmail(toEmail, toName, subject, html) { return true; }
 
 function buildWelcomeEmail(name) {
   return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#09090f;font-family:'Segoe UI',Arial,sans-serif;">
